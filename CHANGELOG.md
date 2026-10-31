@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.0-alpha.3
+
+- Add ONVIF camera discovery and automatic main/substream setup, with optional persistent Auto scans every minute and at startup. Passwords are encrypted, repeat scans skip existing cameras, and new-camera recording is explicitly selected.
+- Add English/Vietnamese Web UI, remembered language selection, Vietnamese setup instructions and separately configurable native display language.
+- Add independent optional Qt 6/GStreamer native renderer packages, headless/display/hybrid modes, EGLFS/DRM preflight, Wayland kiosk fallback and a separate boot service.
+- Verify real multicast/SOAP discovery through decoded RTSP recording, plus a sixteen-tile native software-rendered wall and recording continuity during renderer crashes. Physical HDMI/EGLFS and GPU decoding remain unverified.
+- Keep alpha.1/alpha.2 artifacts unchanged.
+
 ## v0.1.0-alpha.2
 
 - Keep the first reconnect deadline when live-view stall and socket-close notifications repeat.
