@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.0-alpha.2
+
+- Keep the first reconnect deadline when live-view stall and socket-close notifications repeat.
+- Preserve original recording file times during stream-copy repair, so delayed recovery keeps the recording on its original date.
+- Add automated timer and recording-repair regressions, plus an actual near-full isolated filesystem test.
+- Alpha.1 artifacts remain unchanged; its release notes document the two recovery limitations.
+
 ## v0.1.0-alpha.1
 
 Initial evaluation prerelease:

@@ -2,7 +2,7 @@
 
 Self-hosted Linux NVR for RTSP cameras. This repository distributes evaluation binaries, installation resources, checksums, release notes and third-party license notices. CameraWall application source is maintained separately in a private repository.
 
-**Current release: [v0.1.0-alpha.1](https://github.com/alt-hn/camerawall-releases/releases/tag/v0.1.0-alpha.1) — prerelease.** Read the attached `VALIDATION.md` for actual test coverage and limitations. Short synthetic tests do not establish sustained full-resolution camera capacity. Proxmox LXC and OS versions beyond the tested Debian environment remain unverified.
+**Current release: [v0.1.0-alpha.2](https://github.com/alt-hn/camerawall-releases/releases/tag/v0.1.0-alpha.2) — prerelease.** Read the attached `VALIDATION.md` for actual test coverage and limitations. Short synthetic tests do not establish sustained full-resolution camera capacity. Proxmox LXC and OS versions beyond the tested Debian environment remain unverified.
 
 ## Install
 
@@ -11,7 +11,7 @@ On Linux AMD64 or ARM64 with systemd:
 ```sh
 sudo apt-get update
 sudo apt-get install -y ffmpeg python3 curl ca-certificates
-version=v0.1.0-alpha.1
+version=v0.1.0-alpha.2
 arch=amd64 # choose arm64 for ARM64 Linux
 base=https://github.com/alt-hn/camerawall-releases/releases/download/$version
 curl -fLO "$base/camerawall_${version}_linux_${arch}.tar.gz"
