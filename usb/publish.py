@@ -43,10 +43,23 @@ if not os.environ.get('GH_TOKEN') and not os.environ.get('GITHUB_TOKEN'):
         assert credential.get('password'), 'GitHub authentication required'
         os.environ['GH_TOKEN'] = credential['password']
 latest_before = json.loads(run('gh','api',f'repos/{REPO}/releases/latest'))['tag_name']
-run('gh','release','create',TAG,'--repo',REPO,'--target',head,'--draft','--prerelease','--latest=false',
-    '--title','CameraWall USB installer 0.1.0 (Debian 12 / x86-64 UEFI)',
-    '--notes-file',str(OUT/'USB-RELEASE-NOTES.md'), *map(str,assets))
-release = json.loads(run('gh','api',f'repos/{REPO}/releases/tags/{TAG}'))
+# Draft releases are not reliably returned by the tags endpoint. Resolve the
+# draft's database id through gh, and permit a safe resume only while still draft.
+existing = subprocess.run(['gh','release','view',TAG,'--repo',REPO,'--json','databaseId'],capture_output=True,text=True)
+if existing.returncode == 0:
+    release_id = json.loads(existing.stdout)['databaseId']
+    prior = json.loads(run('gh','api',f'repos/{REPO}/releases/{release_id}'))
+    assert prior['draft'] and prior['tag_name'] == TAG, 'Never replace a public release'
+    run('gh','release','edit',TAG,'--repo',REPO,'--target',head,
+        '--title','CameraWall USB installer 0.1.0 (Debian 12 / x86-64 UEFI)',
+        '--notes-file',str(OUT/'USB-RELEASE-NOTES.md'),'--prerelease','--latest=false')
+else:
+    run('gh','release','create',TAG,'--repo',REPO,'--target',head,'--draft','--prerelease','--latest=false',
+        '--title','CameraWall USB installer 0.1.0 (Debian 12 / x86-64 UEFI)',
+        '--notes-file',str(OUT/'USB-RELEASE-NOTES.md'))
+    release_id = json.loads(run('gh','release','view',TAG,'--repo',REPO,'--json','databaseId'))['databaseId']
+run('gh','release','upload',TAG,'--repo',REPO,'--clobber',*map(str,assets))
+release = json.loads(run('gh','api',f'repos/{REPO}/releases/{release_id}'))
 assert release['draft'] and release['prerelease'] and release['target_commitish'] == head
 remote = {a['name']:a for a in release['assets']}
 assert set(remote) == {p.name for p in assets}
