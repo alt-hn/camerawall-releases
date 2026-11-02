@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 [ -s /tmp/camerawall-system-disk ] || exit 1
-install -d /target/usr/local/lib/camerawall-usb /target/var/lib/camerawall-usb
+mkdir -p /target/usr/local/lib/camerawall-usb /target/var/lib/camerawall-usb
 cp /cdrom/camerawall/bootstrap.sh /cdrom/camerawall/release.env /target/usr/local/lib/camerawall-usb/
 cp /cdrom/camerawall/camerawall-firstboot.service /target/etc/systemd/system/
 cp /tmp/camerawall-system-disk /target/var/lib/camerawall-usb/system-disk
