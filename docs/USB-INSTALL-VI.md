@@ -13,7 +13,7 @@ Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứ
 
 ## Tải và kiểm tra
 
-Tải ISO `camerawall-usb-v0.1.0-amd64.iso` cùng `SHA256SUMS` từ [release USB](https://github.com/alt-hn/camerawall-releases/releases/tag/usb-v0.1.0). Đối chiếu đủ 64 ký tự SHA-256 trước khi flash; khác checksum thì xóa file tải lỗi và tải lại.
+Tải ISO `camerawall-usb-v0.1.0-amd64.iso` cùng `SHA256SUMS` từ [release USB](https://github.com/alt-hn/camerawall-releases/releases/tag/usb-v0.1.0). Đối chiếu đủ 64 ký tự SHA-256 (không phân biệt chữ hoa/thường) trước khi flash; khác checksum thì xóa file tải lỗi và tải lại.
 
 Windows PowerShell:
 
@@ -62,7 +62,7 @@ hostname -I
 sudo cat /etc/camerawall/initial-admin-password
 ```
 
-Chỉ coi là xong khi có file `complete` và log `READY`. Mở `http://IP-của-máy` trong LAN, tài khoản web `admin`, mật khẩu lấy ở lệnh cuối. Đổi mật khẩu; thêm camera và cấu hình recording theo nhu cầu. Không mở port HTTP này ra Internet; truy cập từ xa qua VPN/reverse proxy HTTPS.
+Chỉ coi là xong khi có file `complete` và log `READY`. Mở `http://IP-của-máy` trong LAN, nhập mật khẩu quản trị lấy ở lệnh cuối. Đổi mật khẩu; thêm camera và cấu hình recording theo nhu cầu. Không mở port HTTP này ra Internet; truy cập từ xa qua VPN/reverse proxy HTTPS.
 
 Runtime AI CPU, OpenCV 4.12.0.88, NumPy 2.0.2 và ba model được cài sẵn trên SSD trước khi báo READY; không tải model trong lúc inference. GPU/CUDA không được provision. Bản đầu cài **máy chủ headless**, không cài desktop/native HDMI. Thư mục recording mặc định ở SSD system: `/var/lib/camerawall/recordings`. Bộ cài không format/mount HDD recording. Sau khi tắt máy và cắm lại HDD, làm theo tài liệu storage của bản CameraWall đang cài; không giả định tính năng HDD/IP trong admin đã phát hành. Khóa chỉ đọc của bộ cài chỉ tồn tại trong phiên cài, không làm thay đổi dữ liệu hoặc chính sách ổ sau reboot.
 

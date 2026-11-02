@@ -1,3 +1,11 @@
+## USB installer 0.1.0 — 2026-11-03
+
+- Separate bootable Debian 12.15 amd64 UEFI USB installer, pinning CameraWall alpha.29.
+- Guarded SSD/eMMC selection, explicit erase confirmation and read-only protection for other disks.
+- Automatic firstboot installation with verified resumable downloads and offline CPU analytics dependencies/models.
+- Vietnamese Windows/macOS/Linux flash guide, recovery instructions and explicit validation limits.
+- USB prerelease publishing verifies GitHub asset digests and leaves application latest-release selection unchanged.
+
 # Changelog
 
 ## v0.1.0-alpha.3

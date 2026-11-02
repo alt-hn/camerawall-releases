@@ -1,0 +1,43 @@
+Selected terminal evidence from the disposable VM; no credentials/cookies included.
+sda ro=0
+sdb ro=1
+sdc ro=1
+sda ro=0
+sdb ro=1
+sdc ro=1
+sdb ro=1
+sdc ro=1
+[   30.090664] bootstrap.sh[874]: Verified opencv_python_headless-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+[   31.104257] bootstrap.sh[874]: Verified numpy-2.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+[   32.142209] bootstrap.sh[874]: Verified yunet.onnx
+[   32.901524] bootstrap.sh[874]: Verified face_detection_yunet-LICENSE
+[   36.958850] bootstrap.sh[874]: Verified sface.onnx
+[   37.790827] bootstrap.sh[874]: Verified face_recognition_sface-LICENSE
+[   41.792824] bootstrap.sh[874]: Verified object_detection_yolox_2022nov.onnx
+[   42.855997] bootstrap.sh[874]: Verified object_detection_yolox-LICENSE
+[   79.494147] bootstrap.sh[900]: PASS offline OpenCV, NumPy, YuNet, SFace and YOLOX model load
+[   85.600893] bootstrap.sh[501]: READY: CameraWall v0.1.0-alpha.29. LAN addresses: 10.0.2.15 fec0::5054:ff:fe12:3456
+PASS administrator API login (credential/cookie not logged)
+version=v0.1.0-alpha.29
+source_commit=a1d21d088334a76bf986afd2c271a07a9c9a9381
+completed=2026-11-02T18:01:01Z
+PASS unprivileged analytics imports, blank-frame face inference, all model loads
+[  205.787885] bootstrap.sh[1130]: sha256sum: WARNING: 1 computed checksum did NOT match
+PASS checksum rejection: no binary replacement and no success marker
+[  228.395935] bootstrap.sh[1387]: Verified opencv_python_headless-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+[  228.521850] bootstrap.sh[1387]: Verified numpy-2.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+[  228.524576] bootstrap.sh[1387]: Verified yunet.onnx
+[  228.528255] bootstrap.sh[1387]: Verified face_detection_yunet-LICENSE
+[  228.772688] bootstrap.sh[1387]: Verified sface.onnx
+[  228.980153] bootstrap.sh[1387]: Verified face_recognition_sface-LICENSE
+[  229.205154] bootstrap.sh[1387]: Verified object_detection_yolox_2022nov.onnx
+[  229.404897] bootstrap.sh[1387]: Verified object_detection_yolox-LICENSE
+[  243.760289] bootstrap.sh[1397]: PASS offline OpenCV, NumPy, YuNet, SFace and YOLOX model load
+[  249.955993] bootstrap.sh[1138]: READY: CameraWall v0.1.0-alpha.29. LAN addresses: 10.0.2.15 fec0::5054:ff:fe12:3456
+PASS firstboot recovery completed
+a2673e21375e91a8d21fcf20016e76582b36cfec2192636c8639a59f8baa9780  /usr/local/lib/camerawall-usb/bootstrap.sh
+PASS outbound Internet unavailable under QEMU restrict=on
+PASS offline reboot: HTTP and preserved administrator login
+PASS persisted completion marker; no installer USB attached
+ActiveState=inactive
+ConditionResult=no

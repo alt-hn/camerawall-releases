@@ -83,6 +83,7 @@ metadata = dict(installer_version=VERSION, installer_source_commit=run('git','re
                 source_tree_clean=not run('git','status','--porcelain',capture_output=True,text=True).stdout,
                 debian_version=DEBIAN, debian_url=BASE+'/'+ISO, debian_sha256=expected[0],
                 debian_signer=FINGERPRINT, iso_sha256=sha(output),
+                analytics_downloads=json.loads((ROOT/'usb/analytics-downloads.json').read_text()),
                 camerawall=dict(line.split('=',1) for line in (ROOT/'usb/release.env').read_text().splitlines()))
 (OUT/'BUILD-INFO.json').write_text(json.dumps(metadata, indent=2)+'\n')
 (OUT/'SHA256SUMS').write_text(f'{sha(output)}  {output.name}\n')

@@ -16,7 +16,7 @@ cd "$state"
 archive="camerawall_${CAMERAWALL_VERSION}_linux_amd64.tar.gz"
 url="https://github.com/alt-hn/camerawall-releases/releases/download/$CAMERAWALL_VERSION/$archive"
 check() { printf '%s  %s\n' "$CAMERAWALL_SHA256" "$archive" | sha256sum -c -; }
-if ! check 2>/dev/null; then
+if ! check >/dev/null 2>&1; then
  echo "Downloading $CAMERAWALL_VERSION from GitHub Releases..."
  # Retain partial bytes across service restarts. A server without Range support
  # gets one clean retry; a mismatched completed object is never executed.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Publish only a clean pushed-main USB build; compare GitHub asset digests."""
-import hashlib, json, os, pathlib, subprocess, urllib.request
+import hashlib, json, os, pathlib, subprocess, sys, urllib.request
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
 REPO = 'alt-hn/camerawall-releases'
@@ -26,13 +26,14 @@ info = json.loads((OUT/'BUILD-INFO.json').read_text())
 assert info['source_tree_clean'] and info['installer_source_commit'] == head
 iso = OUT/f'camerawall-{TAG}-amd64.iso'
 assert digest(iso) == info['iso_sha256']
-for name in ('USB-INSTALL-VI.md','USB-VALIDATION.md'):
+run(sys.executable, str(ROOT/'usb/verify.py'))
+for name in ('USB-INSTALL-VI.md','USB-VALIDATION.md','USB-RELEASE-NOTES.md'):
     assert (OUT/name).read_bytes() == (ROOT/'docs'/name).read_bytes()
 names = [iso.name, 'BUILD-INFO.json', 'BOOT-LAYOUT.txt', 'DEBIAN-SIGNATURE.txt',
          'USB-INSTALL-VI.md', 'USB-VALIDATION.md', 'USB-RELEASE-NOTES.md']
 assets = [OUT/name for name in names]
 sums = {p.name:digest(p) for p in assets}
-(OUT/'SHA256SUMS').write_text(''.join(f'{value}  {name}\n' for name,value in sums.items()))
+(OUT/'SHA256SUMS').write_text(f'{sums[iso.name]}  {iso.name}\n')
 assets.append(OUT/'SHA256SUMS')
 # Reuse the configured Git credential in memory; never log/store the token.
 if not os.environ.get('GH_TOKEN') and not os.environ.get('GITHUB_TOKEN'):
