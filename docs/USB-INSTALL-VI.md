@@ -1,6 +1,6 @@
 # USB mồi cài CameraWall qua Internet — usb-v0.1.0
 
-Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứa Debian 12.15 netinst và firmware chính thức, không chứa CameraWall hoặc toàn bộ hệ điều hành đã cài. Debian tải gói từ `deb.debian.org`/`security.debian.org`; CameraWall tải **v0.1.0-alpha.29** từ GitHub Releases. Không cần dịch vụ cloud riêng. Sau khi hoàn tất, CameraWall hoạt động trong LAN không cần Internet; cập nhật phần mềm vẫn cần Internet.
+Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứa Debian 12.15 netinst và firmware chính thức, không chứa CameraWall hoặc toàn bộ hệ điều hành đã cài. Debian tải gói từ `deb.debian.org`/`security.debian.org`; CameraWall tải **v0.1.0-alpha.29** từ GitHub Releases. OpenCV/NumPy tải từ PyPI, ba model YuNet/SFace/YOLOX từ commit OpenCV Zoo đã ghim; mọi file đều kiểm SHA-256 trước khi dùng. Không cần dịch vụ cloud riêng. Sau khi hoàn tất, CameraWall hoạt động trong LAN không cần Internet; cập nhật phần mềm vẫn cần Internet.
 
 ## Chuẩn bị
 
@@ -8,7 +8,7 @@ Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứ
 - RAM tối thiểu 2 GB để cài, khuyến nghị 4 GB trở lên. Đây không phải cam kết số camera/hiệu năng AI.
 - SSD SATA/NVMe hoặc eMMC bên trong máy, tối thiểu 24 GiB thực (nên dùng 32 GB trở lên). **Toàn bộ ổ system được chọn sẽ bị xóa**, gồm OS, phân vùng và dữ liệu cũ. Không hỗ trợ cài lên HDD quay, ổ USB, RAID/LVM đang hoạt động.
 - USB tối thiểu 2 GB; mọi dữ liệu trên USB cũng bị xóa khi flash.
-- Màn hình và bàn phím; Ethernet có DHCP, DNS và Internet tới Debian/GitHub qua cổng 80/443. Cần thêm dung lượng tải vài GB; không cài qua captive portal. Wi-Fi và USB Ethernet chưa được kiểm thử.
+- Màn hình và bàn phím; Ethernet có DHCP, DNS và Internet tới Debian/GitHub, `files.pythonhosted.org`, `media.githubusercontent.com` và `raw.githubusercontent.com` qua cổng 80/443. Cần thêm dung lượng tải vài GB; không cài qua captive portal. Wi-Fi và USB Ethernet chưa được kiểm thử.
 - Sao lưu trước. **Rút HDD/SSD recording và các ổ backup khỏi máy trong lần cài đầu** nếu có thể. Bộ cài khóa chỉ đọc các ổ không được chọn, nhưng không thể đoán SSD nào chứa dữ liệu quý của bạn.
 
 ## Tải và kiểm tra
@@ -64,7 +64,7 @@ sudo cat /etc/camerawall/initial-admin-password
 
 Chỉ coi là xong khi có file `complete` và log `READY`. Mở `http://IP-của-máy` trong LAN, tài khoản web `admin`, mật khẩu lấy ở lệnh cuối. Đổi mật khẩu; thêm camera và cấu hình recording theo nhu cầu. Không mở port HTTP này ra Internet; truy cập từ xa qua VPN/reverse proxy HTTPS.
 
-Bản đầu cài **máy chủ headless**, không cài desktop/native HDMI. Thư mục recording mặc định ở SSD system: `/var/lib/camerawall/recordings`. Bộ cài không format/mount HDD recording. Sau khi tắt máy và cắm lại HDD, làm theo tài liệu storage của bản CameraWall đang cài; không giả định tính năng HDD/IP trong admin đã phát hành. Khóa chỉ đọc của bộ cài chỉ tồn tại trong phiên cài, không làm thay đổi dữ liệu hoặc chính sách ổ sau reboot.
+Runtime AI CPU, OpenCV 4.12.0.88, NumPy 2.0.2 và ba model được cài sẵn trên SSD trước khi báo READY; không tải model trong lúc inference. GPU/CUDA không được provision. Bản đầu cài **máy chủ headless**, không cài desktop/native HDMI. Thư mục recording mặc định ở SSD system: `/var/lib/camerawall/recordings`. Bộ cài không format/mount HDD recording. Sau khi tắt máy và cắm lại HDD, làm theo tài liệu storage của bản CameraWall đang cài; không giả định tính năng HDD/IP trong admin đã phát hành. Khóa chỉ đọc của bộ cài chỉ tồn tại trong phiên cài, không làm thay đổi dữ liệu hoặc chính sách ổ sau reboot.
 
 ## Mất mạng, lỗi và phục hồi
 

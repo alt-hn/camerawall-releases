@@ -42,6 +42,10 @@ with tarfile.open(archive) as t:
     assert f'version={version}\n' in info and f'source_commit={commit}\n' in info
     t.extractall('unpacked')
 PY
+echo 'Installing signed Debian dependencies and the offline analytics runtime...'
+apt-get -o Acquire::Retries=5 update
+DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y --no-install-recommends python3-venv libglib2.0-0 libgomp1
+python3 "$base/provision-analytics.py"
 bash "unpacked/camerawall_${CAMERAWALL_VERSION}_linux_amd64/install.sh"
 # No unattended Internet download after installation; updates remain an admin choice.
 systemctl disable --now camerawall-auto-download.timer

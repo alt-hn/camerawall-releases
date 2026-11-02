@@ -16,7 +16,7 @@ with tempfile.TemporaryDirectory(prefix='cw-verify-') as directory:
         subprocess.run(['xorriso','-osirrox','on','-indev',str(image),'-extract',remote,str(local)],check=True,capture_output=True)
     payload = directory/'payload'
     extract(iso,'/camerawall',payload)
-    for name in ('preseed.cfg','select-disk.sh','late-install.sh','bootstrap.sh','release.env','camerawall-firstboot.service','LICENSE'):
+    for name in ('preseed.cfg','select-disk.sh','late-install.sh','bootstrap.sh','provision-analytics.py', 'analytics-downloads.json', 'provision-analytics.py','analytics-downloads.json','release.env','camerawall-firstboot.service','LICENSE'):
         assert (payload/name).read_bytes() == (ROOT/'usb'/name).read_bytes(), name
     assert (payload/'USB-INSTALL-VI.md').read_bytes() == (ROOT/'docs/USB-INSTALL-VI.md').read_bytes()
     assert 'commit='+info['installer_source_commit'] in (payload/'INSTALLER-SOURCE.txt').read_text()

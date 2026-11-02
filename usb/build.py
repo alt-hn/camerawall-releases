@@ -53,7 +53,7 @@ with tempfile.TemporaryDirectory(prefix='cw-iso-') as stage:
     payload = stage / 'camerawall'
     payload.mkdir()
     names = ('preseed.cfg', 'select-disk.sh', 'late-install.sh', 'bootstrap.sh',
-             'release.env', 'camerawall-firstboot.service', 'LICENSE')
+             'provision-analytics.py', 'analytics-downloads.json', 'release.env', 'camerawall-firstboot.service', 'LICENSE')
     for name in names:
         shutil.copy2(ROOT/'usb'/name, payload/name)
     shutil.copy2(ROOT/'docs/USB-INSTALL-VI.md', payload/'USB-INSTALL-VI.md')
