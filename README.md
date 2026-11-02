@@ -4,6 +4,10 @@ Self-hosted Linux NVR for RTSP cameras. This repository distributes evaluation b
 
 **Current release: [v0.1.0-alpha.3](https://github.com/alt-hn/camerawall-releases/releases/tag/v0.1.0-alpha.3) — prerelease.** Read the attached `VALIDATION.md` for actual test coverage and limitations. Short synthetic tests do not establish sustained full-resolution camera capacity. Proxmox LXC and OS versions beyond the tested Debian environment remain unverified.
 
+## USB Internet installer (x86-64 UEFI)
+
+A bootable USB installer is being prepared. Read [Vietnamese flash/install/recovery instructions](docs/USB-INSTALL-VI.md) and [validation scope](docs/USB-VALIDATION.md). It installs Debian 12 and pins CameraWall alpha.29; existing recording disks are not provisioned.
+
 ## Install
 
 On Linux AMD64 or ARM64 with systemd:
