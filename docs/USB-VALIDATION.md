@@ -1,112 +1,88 @@
-# USB installer validation — usb-v0.1.0
+# USB installer validation — usb-v0.2.0
 
-Validation date: **2026-11-03, Asia/Ho_Chi_Minh**. Evaluation prerelease;
+Validation date: **2026-11-06, Asia/Ho_Chi_Minh**. Evaluation installer;
 physical thin-client qualification and deployment are not claimed.
 
 ## Artifact and provenance
 
 - Debian **12.15.0 amd64 netinst**, official ISO SHA-256
   `cd4462c06aa8892e692c0c4b9c17802f38c8ab8690e85cbfb5ccaa5956e9af17`.
-- Detached Debian SHA256SUMS signature verified using CD signing key
-  `DF9B9C49EAA9298432589D76DA87E80D6294BE9B`; see DEBIAN-SIGNATURE.txt.
-- CameraWall **v0.1.0-alpha.29**, archive SHA-256
+- Detached checksum signature verified with Debian CD signing key
+  `DF9B9C49EAA9298432589D76DA87E80D6294BE9B`.
+- Existing CameraWall **v0.1.0-alpha.29**, archive SHA-256
   `2cb8bee4fb154af3aa753c345c9f9165b903c2de5576a134167423690904fefd`,
-  source `a1d21d088334a76bf986afd2c271a07a9c9a9381`.
-  Archive BUILD-INFO and AMD64 ELF machine type 62 were verified.
-- Application `main` was clean and equal to fetched `origin/main` when this release
-  was pinned. No application source was changed or rebuilt. Debian 12 selection
-  is grounded in the application's Debian 12 installation lifecycle evidence and
-  Debian 12 native binary target; no Debian 13 compatibility is assumed.
-- OpenCV 4.12.0.88 / NumPy 2.0.2 Linux x86-64 wheels, YuNet/SFace/YOLOX models and
-  upstream model license files were downloaded and checked against pinned SHA-256.
-  URLs/hashes are in BUILD-INFO.json and `usb/analytics-downloads.json`.
-- xorriso reports UEFI El Torito plus hybrid MBR/GPT USB layout. EFI boot image,
-  kernel and initrd are byte-identical to Debian's originals. Runtime payload,
-  boot menus and installer source marker are inspected from the built ISO.
-- Complete remastered media manifest verified: **979 files**. SHA-256 is the
-  external integrity check; Debian's internal MD5 manifest is retained/updated
-  only for its media consistency checker.
-- Shell syntax, Python compilation and git diff whitespace checks passed.
+  application source `a1d21d088334a76bf986afd2c271a07a9c9a9381`.
+  No application source is changed or rebuilt for this installer.
+- Pinned OpenCV 4.12.0.88, NumPy 2.0.2, YuNet/SFace/YOLOX models and licenses
+  are verified by SHA-256 during provisioning.
+- Final ISO verification extracts and compares all runtime payloads and menus
+  with committed source. Debian EFI image, kernel and initrd remain byte-identical.
+  BUILD-INFO.json records source commit, source cleanliness and ISO digest;
+  BOOT-LAYOUT.txt records UEFI El Torito and hybrid MBR/GPT layout.
 
-## VM installation and disk protection
+## Zero-input installation
 
-QEMU **11.1.3**, TCG x86-64 software emulation on Apple Silicon, EDK II UEFI,
-2 GiB RAM, 4 virtual CPUs for the completed run; emulated USB image,
-32 GiB non-rotating SCSI system disk and separate 8 GiB rotating recording disk.
-No physical disk was attached, flashed or partitioned.
+QEMU 11.1.3, EDK II UEFI, x86-64 TCG on Apple Silicon, 4 CPUs and 2 GiB RAM.
+Only disposable disk images were attached; no physical disk was flashed.
 
-- Booted the ISO as USB storage into the CameraWall GRUB menu and Debian Installer.
-- DHCP worked; Linux administrator password was requested interactively.
-- Disk selector displayed model/serial/capacity and offered only the system SSD.
-  USB and rotating recording disk were protected.
-- A deliberately wrong erase phrase in an earlier development-image run stopped
-  installation with "Erase phrase did not match" and no fallback disk. Both guest
-  disks remained all-zero according to qemu-img comparison after stopping that VM.
-- In the completed run, kernel readback after explicit confirmation was:
-  `/dev/sda` selected, `sda ro=0`, `sdb ro=1`, `sdc ro=1`.
-- Debian's separate final write confirmation listed only sda partitions:
-  EFI System Partition, ext4 root and swap. No automatic confirmation was supplied.
-- Completed Debian installation, official mirror security updates, FFmpeg and
-  required packages, GRUB and firstboot-service installation.
-- Shut down/remounted the VM configuration without USB and booted the installed
-  SSD through `EFI/debian/shimx64.efi`. Installed kernel was **6.1.0-54-amd64**,
-  Debian **6.1.190-1**. Future installs receive Debian 12 packages current at that time.
-- After the full installation and recovery tests, the entire recording guest disk
-  still compared identical to zero. The size-mismatch note is expected when
-  comparing a fixed-size guest image with `/dev/zero`; no disk-content difference.
-  This uses a synthetic empty recording disk, not a real recording library.
+Three writable guest disks were present:
 
-## Firstboot, usable service and recovery
+| Device during installation | Size | Role |
+| --- | --- | --- |
+| sda | 48 GiB | Rotating SCSI HDD with an existing sentinel |
+| sdb | 24 GiB | Boot USB, intentionally large enough to qualify by size |
+| sdc | 32 GiB | Separate USB installation destination |
 
-- On the newly installed Debian OS, firstboot fetched the existing CameraWall
-  release and all pinned AI files, verified them, installed the local environment,
-  loaded all three models and installed/started CameraWall. It reached `READY`.
-- Host-forwarded HTTP returned **200**, and bundled JavaScript/CSS assets were
-  retrieved successfully. Administrator API login returned **200** and a session
-  cookie; password and cookie values were not logged.
-- `camerawall` and `camerawall-media` were active. The auto-download timer was disabled.
-- Under the unprivileged `camerawall` user, OpenCV/NumPy imported, all models loaded,
-  and YuNet processed a blank synthetic frame. This is runtime/permissions evidence,
-  not recognition accuracy or real-camera throughput evidence.
-- Controlled download interruption on the build host stopped a real GitHub release
-  transfer after **2,191,969 bytes**; HTTP Range resume completed and SHA-256 matched.
-- In the disposable guest, a deliberately incorrect expected CameraWall hash caused
-  firstboot to fail, with explicit checksum-mismatch output. Installed binary mtime
-  was unchanged and no success marker was written. The wrong hash was then removed.
-- Restarting firstboot with the correct manifest reused verified cache, preserved
-  existing application state/credentials and returned to `READY` without partitioning.
+The default menu timed out and completed Debian installation, partitioning,
+Linux account creation, reboot, application download, AI provisioning and READY
+without a keypress or mouse click. Installer log selected **sdc**, excluded **sdb**,
+and protected all other disks. Root and EFI partitions were read back on sdc.
+The 48 GiB HDD compared identical to its pre-install image after shutdown.
 
-The full OS install used the ISO from installer commit `5baa367`. The final
-bootstrap only changes expected cache-miss logging; that exact final bootstrap
-was installed into the disposable guest and exercised by the checksum-failure and
-recovery tests. Its SHA-256 was read back as
-`a2673e21375e91a8d21fcf20016e76582b36cfec2192636c8639a59f8baa9780`, matching source.
-Final ISO runtime files are re-extracted and compared to the final committed source;
-BOOT-LAYOUT.txt / BUILD-INFO.json describe the final artifact, not a development ISO.
+The boot USB was never selected or repartitioned. During operation, its EFI FAT
+image had one byte changed (sector 2496, offset 37, 0 to 1); after clean shutdown,
+all original ISO bytes compared identical again. This is not a claim of zero
+firmware writes. The kernel disk guard protects it before partitioning.
 
-## Offline reboot
+A separate VM with only the 24 GiB boot USB stopped at the explicit error:
+"No writable, unused destination of at least 24 GiB outside the boot disk."
+No fallback destination was selected. No input was supplied to dismiss the error.
 
-Rebooted the installed SSD with **no USB** and QEMU user networking
-`restrict=on` (only the explicit host HTTP forward retained). An outbound HTTPS
-request to deb.debian.org failed within the configured timeout, confirming the
-restricted connection. Host-forwarded HTTP returned 200 and administrator API
-login succeeded using the preserved password. Both application/media services
-were active; firstboot reported `ConditionResult=no`, `ActiveState=inactive`
-because the persisted completion marker existed. The update-download timer
-remained disabled. The disposable VM was then powered off.
+## Ready state and subsequent USB boot
 
-## Limits
+- CameraWall and its media service started; firstboot reached READY after pinned
+  dependencies and all three models loaded successfully.
+- HTTP administrator login returned 200 and a session cookie using the generated
+  password. Secret values and cookies are excluded from published evidence.
+- Generated Linux password matched the cwadmin shadow hash; its file mode was 0600.
+- Local console displayed READY, LAN URL and both initial passwords. Journal
+  content was checked for both passwords and did not contain them.
+- Reboot retained completion state and credentials. A separate cold boot reset
+  UEFI NVRAM to ensure the **installer USB** was first. Firmware readback showed
+  BootCurrent pointing to CW-BOOT-24GB; the USB loaded the installed OS through
+  its marker. No second installation or selection of the spare HDD occurred.
 
-Not established: physical thin-client boot, real SATA/NVMe/eMMC controller or NIC
-firmware compatibility, Secure Boot, Wi-Fi, USB Ethernet, real RTSP/ONVIF camera
-operation in this VM, sustained recording/AI capacity, physical HDMI, power-loss
-recovery at every write boundary, prolonged soak or production deployment.
+The full install used a development image of the final successful installation
+path. Two subsequent changes were separately exercised: the no-destination error
+dialog in the boot-only VM, and the getty Type=exec override in the installed VM
+(to prevent Debian's delayed getty startup from clearing credentials on reboot).
+The final ISO is rebuilt from clean pushed main and its exact files are verified;
+a second complete Debian installation of that final remaster is not claimed.
 
-No blanket rollback is promised. Loss of power after disk-write confirmation can
-leave a partially installed OS. Download errors after OS installation can be
-retried through the service; application state created only partially by an
-interruption may require individual diagnosis. See USB-INSTALL-VI.md.
+## Scope and limits
 
-Publication verification checks the clean pushed-main tag, GitHub asset SHA-256
-and sizes, anonymous public links, and that the application latest-release feed
-is unchanged. The large published ISO is not downloaded again just for readback.
+The unchanged bootstrap's download-resume, checksum-rejection, recovery and
+restricted-network reboot tests belong to **usb-v0.1.0**, whose validation remains
+available under that tag. They are not presented as newly repeated 0.2.0 tests.
+
+Not established: physical thin-client boot, real SATA/NVMe/eMMC controllers or NIC
+firmware, Secure Boot, Wi-Fi, USB Ethernet, real camera throughput, recording soak,
+physical HDMI or power failure at every write boundary. VM evidence establishes
+selection/exclusion and unattended setup, not compatibility with every machine.
+Firmware must already prefer USB; Ethernet/DHCP/Internet must work for installation.
+A power failure before the installed marker exists may restart installation and
+erase the selected disk again. There is no transactional partition rollback.
+
+Publication checks the clean pushed-main tag, all asset SHA-256 digests/sizes,
+anonymous public links and unchanged application latest-release feed. The large
+published ISO is not downloaded again solely for readback.

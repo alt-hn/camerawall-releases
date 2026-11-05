@@ -1,114 +1,97 @@
 #!/bin/sh
-# Runs inside Debian Installer, never on the build host.
+# Unattended Debian Installer guard. Never run on the build host.
 set -eu
-. /usr/share/debconf/confmodule
-cat > /tmp/camerawall.templates <<'TEMPLATES'
-Template: camerawall/disk
-Type: select
-Choices: ${choices}
-Description: Choose the SYSTEM SSD/eMMC to ERASE
- ${inventory}
- .
- ALL partitions and ALL data on the chosen disk will be lost. Disconnect recording disks and backups before proceeding. USB, removable media and rotating HDDs cannot be selected. Other disks will be made read-only for this installer session.
-
-Template: camerawall/erase
-Type: string
-Description: Permanent data loss: confirm the exact system disk
- ${identity}
- .
- To erase this entire disk, type exactly: ${phrase}
- .
- An empty or incorrect answer aborts installation. Debian will also ask you to confirm writing the partition table.
-
-Template: camerawall/error
+fail() {
+ logger -t camerawall "INSTALL STOPPED: $*"
+ echo "CameraWall INSTALL STOPPED: $*" > /dev/console
+ # Replace the progress box with a visible terminal error; no answer can
+ # resume disk selection or formatting after this guard has rejected the machine.
+ cat > /tmp/camerawall-error.templates <<'TEMPLATES'
+Template: camerawall/automatic-error
 Type: error
-Description: CameraWall installation stopped safely
+Description: CameraWall automatic installation stopped
  ${reason}
  .
- No automatic fallback disk will be used. Power off, remove recording drives and check the hardware, then start again. Do not continue with manual partitioning.
+ No fallback disk will be erased. Power off and correct the disk/boot setup.
 TEMPLATES
-debconf-loadtemplate camerawall /tmp/camerawall.templates
-fail() {
- db_subst camerawall/error reason "$*"
- db_input critical camerawall/error || true
+ debconf-loadtemplate camerawall /tmp/camerawall-error.templates || true
+ db_subst camerawall/automatic-error reason "$*" || true
+ db_input critical camerawall/automatic-error || true
  db_go || true
- # Fail closed: keep partman from continuing after an early_command error.
+ # An early_command failure must never fall through to partman's default disk.
  while :; do sleep 3600; done
 }
-[ -d /sys/firmware/efi ] || fail 'UEFI boot is required. Legacy BIOS is unsupported.'
-command -v blockdev >/dev/null || fail 'blockdev is unavailable; disk protection cannot be applied.'
-: > /tmp/camerawall-candidates
+. /usr/share/debconf/confmodule
+[ -d /sys/firmware/efi ] || fail 'UEFI boot is required.'
+command -v blockdev >/dev/null || fail 'Cannot enforce disk protection.'
+# Resolve the actual mounted installer device to its whole physical disk. Do not
+# guess by USB transport: a different USB drive is a legitimate installation target.
+media=$(awk '$2 == "/cdrom" {print $1}' /proc/mounts)
+[ -n "$media" ] || fail 'Cannot identify the mounted installer medium.'
+media=$(readlink -f "$media")
+name=${media##*/}
+[ -e "/sys/class/block/$name" ] || fail 'Installer medium is not a block device.'
+node=$(readlink -f "/sys/class/block/$name")
+if [ -f "/sys/class/block/$name/partition" ]; then name=$(basename "$(dirname "$node")"); fi
+case "$name" in sd*|nvme*|mmcblk*|vd*|xvd*|sr*) ;; *) fail 'Loop/mapper/network boot is unsupported; flash the ISO directly.';; esac
+boot=/dev/$name
+[ -b "$boot" ] || fail 'Cannot resolve the installer parent disk.'
 : > /tmp/camerawall-disks
-inventory=''
-choices=''
+: > /tmp/camerawall-candidates
 for sys in /sys/block/*; do
  name=${sys##*/}
- case "$name" in sd[a-z]*|nvme[0-9]*n[0-9]*|mmcblk[0-9]) ;; *) continue;; esac
- [ -f "$sys/partition" ] && continue
+ case "$name" in sd[a-z]*|nvme[0-9]*n[0-9]*|mmcblk[0-9]*|vd[a-z]*|xvd[a-z]*) ;; *) continue;; esac
+ case "$name" in *boot*|*rpmb*) continue;; esac
  dev=/dev/$name
  [ -b "$dev" ] || continue
  echo "$dev" >> /tmp/camerawall-disks
- path=$(readlink -f "$sys")
- removable=$(cat "$sys/removable")
- rotational=$(cat "$sys/queue/rotational")
+ [ "$dev" != "$boot" ] || continue
+ [ "$(blockdev --getro "$dev")" = 0 ] || continue
  sectors=$(cat "$sys/size")
- model=$(cat "$sys/device/model" 2>/dev/null || echo eMMC)
- serial=$(cat "$sys/device/serial" 2>/dev/null || true)
- if [ -z "$serial" ] && command -v udevadm >/dev/null; then
-  serial=$(udevadm info --query=property --name="$dev" 2>/dev/null | sed -n 's/^ID_SERIAL_SHORT=//p')
- fi
- serial=${serial:-unavailable}
- gib=$((sectors / 2097152))
- status=PROTECTED
- case "$path" in */usb[0-9]*/*) usb=yes;; *) usb=no;; esac
- if [ "$usb" = no ] && [ "$removable" = 0 ] && [ "$rotational" = 0 ] && [ "$gib" -ge 24 ]; then
-  # Reject disks involved in active MD/DM stacks. Never remove existing RAID/LVM automatically.
-  holders=$(ls "$sys/holders")
-  for part in "$sys"/"$name"*; do
-   [ -f "$part/partition" ] || continue
-   holders="$holders$(ls "$part/holders")"
-  done
-  if [ -z "$holders" ]; then
-   status=ELIGIBLE
-   echo "$dev" >> /tmp/camerawall-candidates
-   choices="${choices:+$choices, }$dev"
-  fi
- fi
- inventory="$inventory [$dev: ${gib}GiB model=$model serial=$serial $status]"
+ [ "$sectors" -ge 50331648 ] || continue # 24 GiB, regardless of SSD/HDD/USB transport
+ holders=$(ls "$sys/holders")
+ for part in "$sys"/"$name"*; do
+  [ -f "$part/partition" ] || continue
+  holders="$holders$(ls "$part/holders")"
+ done
+ [ -z "$holders" ] || continue
+ # Never overwrite a mounted disk, including a manually attached data filesystem.
+ mounted=no
+ for device in "$dev" "$dev"[0-9]* "$dev"p[0-9]*; do
+  if awk -v d="$device" '$1 == d {found=1} END {exit !found}' /proc/mounts; then mounted=yes; fi
+ done
+ [ "$mounted" = no ] || continue
+ printf '%s %s\n' "$sectors" "$dev" >> /tmp/camerawall-candidates
 done
-[ -s /tmp/camerawall-candidates ] || fail "No eligible internal SSD/eMMC (minimum 24 GiB). $inventory"
-db_subst camerawall/disk choices "$choices"
-db_subst camerawall/disk inventory "$inventory"
-db_fset camerawall/disk seen false
-db_input critical camerawall/disk || true
-db_go || fail 'Disk selection cancelled.'
-db_get camerawall/disk
-target=$RET
-grep -Fxq "$target" /tmp/camerawall-candidates || fail 'No valid system disk selected.'
-name=${target##*/}
-sectors=$(cat /sys/block/"$name"/size)
-phrase="ERASE $target $sectors"
-db_subst camerawall/erase identity "$inventory Selected: $target. Existing operating systems, recordings and files on this disk will be destroyed."
-db_subst camerawall/erase phrase "$phrase"
-db_set camerawall/erase ''
-db_fset camerawall/erase seen false
-db_input critical camerawall/erase || true
-db_go || fail 'Erase confirmation cancelled.'
-db_get camerawall/erase
-[ "$RET" = "$phrase" ] || fail 'Erase phrase did not match.'
-# Lock every unselected disk and its partitions, including the installer USB.
-while read -r dev; do
- [ "$dev" = "$target" ] && continue
+[ -s /tmp/camerawall-candidates ] || fail 'No writable, unused destination of at least 24 GiB outside the boot disk.'
+# Equal-sized disks use lexicographic Linux device name as the documented tie-break.
+selected=$(LC_ALL=C sort -k1,1n -k2,2 /tmp/camerawall-candidates | head -n 1)
+sectors=${selected%% *}
+target=${selected#* }
+[ "$target" != "$boot" ] || fail 'Boot disk exclusion failed.'
+# Protect the boot device and all unselected whole disks AND their partitions.
+for dev in $(cat /tmp/camerawall-disks) "$boot"; do
+ [ "$dev" != "$target" ] || continue
  name=${dev##*/}
  for p in /sys/block/"$name"/"$name"*; do
   [ -f "$p/partition" ] || continue
-  blockdev --setro "/dev/${p##*/}" || fail "Cannot protect partition $p"
+  blockdev --setro "/dev/${p##*/}" || fail "Cannot protect $p"
  done
  blockdev --setro "$dev" || fail "Cannot protect $dev"
- [ "$(blockdev --getro "$dev")" = 1 ] || fail "Read-only verification failed for $dev"
-done < /tmp/camerawall-disks
-[ "$(blockdev --getro "$target")" = 0 ] || fail 'Selected system disk is read-only.'
+ [ "$(blockdev --getro "$dev")" = 1 ] || fail "Cannot verify protection for $dev"
+done
+[ "$(blockdev --getro "$target")" = 0 ] || fail 'Destination became read-only.'
+logger -t camerawall "UNATTENDED: boot=$boot target=$target sectors=$sectors; erasing smallest eligible disk; all others protected"
+echo "CameraWall: automatically installing to $target; boot disk $boot is protected." > /dev/console
 db_set partman-auto/disk "$target"
 db_set grub-installer/bootdev "$target"
+# Set destructive answers only after resolving boot media and locking other disks.
+db_set partman-partitioning/confirm_write_new_label true
+db_set partman/choose_partition finish
+db_set partman/confirm true
+db_set partman/confirm_nooverwrite true
+for question in partman-auto/disk grub-installer/bootdev partman-partitioning/confirm_write_new_label partman/choose_partition partman/confirm partman/confirm_nooverwrite; do
+ db_fset "$question" seen true
+done
 printf '%s\n' "$target" > /tmp/camerawall-system-disk
-logger -t camerawall "User explicitly confirmed erasure of $target ($sectors sectors); other disks protected"
+printf '%s\n' "$boot" > /tmp/camerawall-boot-disk

@@ -1,17 +1,13 @@
-# CameraWall USB installer 0.1.0 — evaluation prerelease
+# CameraWall USB 0.2.0 — fully unattended installation
 
-Bootable USB image for **x86-64 UEFI thin clients with Ethernet and an internal SSD/eMMC**. It installs Debian 12 from official Debian media/mirrors, then downloads the existing CameraWall **v0.1.0-alpha.29** release from GitHub. No custom cloud service or preinstalled OS disk image is required.
+**This USB automatically ERASES the smallest eligible disk of at least 24 GiB other than the disk it booted from. There is no password prompt, disk selection, ERASE phrase or partition confirmation. Boot it only on a machine you intend to reinstall.**
 
-- Explicit system-disk choice, model/serial/capacity readback, typed ERASE phrase and Debian's final partition confirmation. USB/removable/rotating disks cannot be selected; unselected disks are set read-only during installation. Disconnect recording/backup disks before installing.
-- Creates a user-chosen Linux administrator password; installs and starts headless CameraWall. Native HDMI/desktop is not installed.
-- Provisions pinned CPU OpenCV/NumPy and YuNet/SFace/YOLOX models, with checksum validation, for local operation after installation. No inference-time model downloads.
-- Cached downloads support retries/resume. Failure remains visible in systemd logs; restarting the firstboot service does not repartition disks. Successful setup requires HTTP readiness.
-- Verifies official Debian CD signing key/checksum, signed Debian packages, and pinned SHA-256/source provenance for CameraWall. All dependency/model URLs and hashes are in BUILD-INFO.json and the source.
-- No recording HDD format/mount, no unreleased admin HDD/network features, no real-device flashing or deployment is performed by publishing this release.
+Connect Ethernet and boot the USB in x86-64 UEFI mode. After a three-second menu countdown, the installer chooses the destination, protects every other disk, installs Debian 12, generates a unique Linux administrator password, reboots and installs pinned CameraWall alpha.29 plus its local CPU AI environment/models. The local display shows the LAN URL and initial passwords when ready.
 
-**Start here:** [Hướng dẫn flash USB, cài đặt và phục hồi (Windows/macOS/Linux)](https://github.com/alt-hn/camerawall-releases/blob/usb-v0.1.0/docs/USB-INSTALL-VI.md). Download the ISO and SHA256SUMS; verify the checksum before flashing. Both flashing USB and installing onto the chosen system disk erase that respective disk.
+SSD, rotating HDD, eMMC and a separate USB disk can be destinations. The actual mounted installer medium is resolved to its whole parent disk and excluded; USB transport by itself is not excluded. Equal-sized eligible disks use Linux device-name order. Read-only/mounted disks and active RAID/LVM members are excluded. If boot-media identification or disk protection fails, installation stops before formatting.
 
-Read attached **USB-VALIDATION.md** for exact VM checks and unverified physical-device limits. Secure Boot, ARM, Wi-Fi, real thin-client storage/NIC compatibility, camera capacity and physical HDMI are not certified. This USB release is separate from application updates and does not replace the application's latest-release feed.
+Leaving the USB inserted does not cause repeat erasure: its GRUB loader detects the installed-system marker and boots that system. The marker also preserves a completed OS while firstboot downloads are incomplete. A power failure before the marker is written can lead to a fresh installation attempt on the next boot.
 
-Application source commit: `a1d21d088334a76bf986afd2c271a07a9c9a9381` (existing alpha.29 binary; application source remains private).
-Installer source: this release's `usb-v0.1.0` tag, built from clean pushed `main`; exact commit and image SHA-256 in **BUILD-INFO.json**.
+[Hướng dẫn flash và sử dụng](https://github.com/alt-hn/camerawall-releases/blob/usb-v0.2.0/docs/USB-INSTALL-VI.md). Attachments include SHA256SUMS, BUILD-INFO.json, boot layout, Debian signature verification and exact validation scope. This prerelease does not change the application latest-release feed.
+
+Application archive remains the existing alpha.29 with source commit `a1d21d088334a76bf986afd2c271a07a9c9a9381`; no private application source is published or rebuilt. Physical thin-client boot, Secure Boot, ARM, Wi-Fi and real camera capacity are not certified. No physical drive was flashed by this release task.

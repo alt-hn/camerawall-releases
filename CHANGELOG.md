@@ -1,3 +1,10 @@
+## USB installer 0.2.0 — 2026-11-06
+
+- Boot and install automatically without keyboard/mouse input; choose the smallest eligible non-boot disk.
+- Allow HDD/SSD/eMMC and separate USB destinations; resolve and protect the actual boot-medium parent disk.
+- Generate a unique Linux administrator password and show initial credentials only on the local display.
+- Boot the installed OS when the installer USB remains inserted, preventing repeat installation after a successful OS setup.
+
 ## USB installer 0.1.0 — 2026-11-03
 
 - Separate bootable Debian 12.15 amd64 UEFI USB installer, pinning CameraWall alpha.29.

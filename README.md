@@ -6,7 +6,7 @@ Self-hosted Linux NVR for RTSP cameras. This repository distributes evaluation b
 
 ## USB Internet installer (x86-64 UEFI)
 
-Download the [USB installer 0.1.0 evaluation prerelease](https://github.com/alt-hn/camerawall-releases/releases/tag/usb-v0.1.0). Read [Vietnamese flash/install/recovery instructions](docs/USB-INSTALL-VI.md) and [validation scope](docs/USB-VALIDATION.md). It installs Debian 12 and pins CameraWall alpha.29; existing recording disks are not provisioned.
+Download the [USB installer 0.2.0 unattended evaluation prerelease](https://github.com/alt-hn/camerawall-releases/releases/tag/usb-v0.2.0). Read [Vietnamese flash/install/recovery instructions](docs/USB-INSTALL-VI.md) and [validation scope](docs/USB-VALIDATION.md). **Booting this USB automatically erases the smallest eligible non-boot disk (minimum 24 GiB), without confirmation.** It installs Debian 12, CameraWall alpha.29 and its offline AI runtime. All other disks are preserved.
 
 ## Install
 

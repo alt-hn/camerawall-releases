@@ -1,30 +1,33 @@
-# Building the CameraWall USB installer
+# CameraWall unattended USB installer 0.2.0
 
-Prerequisites: Python 3.9+, curl, GnuPG, xorriso; Linux or macOS. On macOS:
-`brew install xorriso gnupg` (QEMU is optional for validation).
+Build with Python 3.9+, curl, GnuPG and xorriso: `python3 usb/build.py`.
+Inspect the actual ISO with `python3 usb/verify.py`. Publish with
+`python3 usb/publish.py` only from clean, committed, pushed main. The script
+refuses to overwrite a public tag and keeps the application latest feed intact.
 
-Read `../docs/USB-INSTALL-VI.md`. Build on clean, committed, pushed `main` before
-publishing. `python3 usb/build.py` downloads/caches Debian's official netinst,
-verifies the Debian CD signature against the pinned fingerprint and checks SHA-256,
-then remasters a bootable hybrid ISO under `dist/`. The script refuses to overwrite
-an existing ISO. Local development builds are identified as dirty in BUILD-INFO;
-never publish those builds. No host disk, partition, mount or service is modified.
+The USB automatically boots the installer after 3 seconds. No input is required
+on a working x86-64 UEFI machine with Ethernet/DHCP/Internet. It automatically
+ERASES the smallest eligible non-boot disk (at least 24 GiB); equal sizes use
+Linux device-name order. HDD, SSD, eMMC and separate USB disks are supported
+candidates. All unselected disks are protected read-only. An unresolvable boot
+medium, no eligible destination or a disk-protection failure stops installation.
+Active RAID/LVM, mounted disks, optical media and read-only devices are not targets.
 
-The pinned application version/hash/source is in `release.env`. To change it,
-verify the release's checksum, archive BUILD-INFO and source provenance; do not
-substitute a moving `latest` URL. The application archive is downloaded on the
-target after Debian boots. Firmware and installer packages remain Debian's;
-this project does not host a cloud service or a preinstalled OS disk image.
+The mounted `/cdrom` block device is resolved to its whole parent disk. Never
+replace this with a transport heuristic that excludes all USB devices or with
+a guess such as `/dev/sda`. Destructive partman confirmations are supplied only
+after this guard succeeds. The mounted installer USB is always excluded.
 
-`select-disk.sh` executes in Debian Installer. Its early-command wrapper must
-remain fail-closed, including unexpected failures before a disk is selected.
-Do not pre-answer partman's final write confirmations. Existing LVM/RAID is not
-automatically removed. `bootstrap.sh` executes on the target OS as root; its
-checksum is pinned, tar entries are validated, and success requires HTTP readiness.
+A unique Linux password is created on the target; initial Linux/web credentials
+are shown only on the attached local display. No shared password is embedded.
+The installed root marker lets USB GRUB load the installed OS on later boots,
+so leaving USB inserted does not reformat the system. A marker is written only
+once GRUB and firstboot services exist. A power cut before that point may lead
+to another install attempt on the next boot; it is not a transactional rollback.
 
-Publication uses a separate `usb-v...` prerelease, with `--latest=false` so the
-CameraWall updater continues to see application releases. Attach ISO, SHA256SUMS,
-BUILD-INFO.json, BOOT-LAYOUT.txt, DEBIAN-SIGNATURE.txt, USB-INSTALL-VI.md and
-USB-VALIDATION.md. Compare GitHub's asset digest/size with local SHA-256 and verify
-anonymous public release/download links. Do not re-download the ISO solely for
-publication verification. No application source or credentials belong in this repo.
+Pinned CameraWall alpha.29 and AI components are downloaded during firstboot,
+with checksums, retries and resumable cache. They run locally after completion.
+Application source remains private and is not rebuilt or republished by this USB.
+
+See `../docs/USB-INSTALL-VI.md`, `USB-VALIDATION.md` and `USB-RELEASE-NOTES.md`.
+No build/publish script writes a physical drive. VM disks are disposable files.

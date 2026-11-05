@@ -1,0 +1,48 @@
+CameraWall unattended USB VM evidence — 2026-11-06
+No physical disks; no keyboard/mouse input throughout installation.
+
+Installer syslog:
+UNATTENDED: boot=/dev/sdb target=/dev/sdc sectors=67108864; erasing smallest eligible disk; all others protected
+
+Installed disk readback:
+sda 48G rotating SCSI, unmounted sentinel disk
+sdb 24G USB, original installer layout
+sdc 32G USB, sdc1 /boot/efi, sdc2 /, sdc3 swap
+
+Firstboot:
+READY, CameraWall alpha.29
+PASS offline OpenCV, NumPy and YuNet/SFace/YOLOX model load
+PASS Linux password, mode0600, web API login, local READY credentials, no credentials in journal, installed marker
+STATE_DIGEST c1e4cc5c5260bb2b297fe0b70687c27c442c1a5166288398ab4c40831724e832
+BOOT_ID b3b9a992-c498-4b42-a1c2-c2b1f43de349
+Result=success
+<string>:2: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+
+After forced USB-first cold boot and getty fix reboot:
+PASS Linux password, mode0600, web API login, local READY credentials, no credentials in journal, installed marker
+STATE_DIGEST c1e4cc5c5260bb2b297fe0b70687c27c442c1a5166288398ab4c40831724e832
+BOOT_ID 96a66af3-89a7-49d7-a909-2aa869da6c35
+Result=success
+<string>:2: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+ConditionResult=no
+active
+active
+disabled
+BootCurrent: 0001
+Timeout: 0 seconds
+BootOrder: 0001,0002,0000,0003
+Boot0000* UiApp
+Boot0001* UEFI QEMU QEMU USB HARDDRIVE CW-BOOT-24GB
+Boot0002* UEFI QEMU QEMU USB HARDDRIVE CW-TARGET-32GB
+Boot0003* EFI Internal Shell
+
+After shutdown:
+qemu-img compare keep-hdd-before.qcow2 keep-hdd.qcow2
+Images are identical.
+Original ISO bytes versus boot USB: identical after clean shutdown.
+During runtime one EFI FAT byte had changed, as detailed in USB-VALIDATION.md.
+
+Boot-only 24 GiB USB VM:
+Visible blocking error: No writable, unused destination of at least 24 GiB outside the boot disk.
+No fallback disk will be erased. Power off and correct the disk/boot setup.
+No input supplied; VM stopped.
