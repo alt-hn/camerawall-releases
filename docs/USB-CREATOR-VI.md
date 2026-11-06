@@ -1,5 +1,7 @@
 # CameraWall USB Creator 1.0.0 — cài offline
 
+**Bản đầu để thử trên máy thật: chưa kiểm chứng trọn vẹn cài offline tới khi CameraWall chạy.**
+
 **Chỉ tải app Creator cho macOS hoặc Windows. Không cần tải ISO CameraWall.**
 App tự lấy Debian chính thức, gói phụ thuộc, CameraWall alpha.40 và AI từ các
 nguồn đã ghim SHA-256, rồi tạo USB bootable ngay trên máy bạn.

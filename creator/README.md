@@ -21,7 +21,7 @@ Debian dependencies come from the USB's local APT repository. Firstboot refuses 
 missing/corrupt AI asset and never silently switches to online download.
 
 `offline/debian-packages.json` is the dependency closure resolved by Debian 12 APT
-from signature-verified official indices, with an empty dpkg status, no recommends,
+from signature-verified official indices, with an empty dpkg status and empty archive cache, no recommends,
 `Acquire::ForceHash=SHA256` and `--print-uris --download-only`. The requested roots
 are documented in the maintainer script. Package controls are read from verified
 .debs to generate the local Packages/Release metadata. The local repository uses
@@ -36,8 +36,10 @@ python -m unittest discover -s creator -p 'test_*.py' -v
 python creator/build.py
 ```
 
-The workflow builds and smoke-tests native packages independently. No physical disk
-is touched in CI. The GUI remains unprivileged; macOS/Windows authenticate the writer.
+The workflow builds and smoke-tests native packages independently, and exercises
+the native writers against newly created Windows VHD/macOS disk-image devices.
+Each test rechecks the exact temporary image-to-device association before writing;
+this fixture override is never bundled in the app. No physical disk is touched in CI. The GUI remains unprivileged; macOS/Windows authenticate the writer.
 Apps initially have no Developer ID/notarization or Authenticode publisher signature.
 
 References: [Linux initramfs](https://www.kernel.org/doc/html/latest/driver-api/early-userspace/buffer-format.html),
