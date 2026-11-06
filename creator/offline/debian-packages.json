@@ -150,6 +150,12 @@
     "sha256": "6f95b79d16a2b32107cb1acd5dad29eb20ee9c909f89a38f8a6f0d8a60a8fd3b"
   },
   {
+    "url": "https://security.debian.org/debian-security/pool/updates/main/p/python3.11/python3.11-venv_3.11.2-6%2bdeb12u9_amd64.deb",
+    "name": "python3.11-venv_3.11.2-6+deb12u9_amd64.deb",
+    "size": 5896,
+    "sha256": "b4d34b92e980d27480f05d91d9571f5d4bd920baeb22d2e64630fe99156b2b68"
+  },
+  {
     "url": "https://deb.debian.org/debian/pool/main/g/gcc-12/gcc-12-base_12.2.0-14%2bdeb12u1_amd64.deb",
     "name": "gcc-12-base_12.2.0-14+deb12u1_amd64.deb",
     "size": 37596,
@@ -2152,5 +2158,35 @@
     "name": "network-manager_1.42.4-1+deb12u1_amd64.deb",
     "size": 3141860,
     "sha256": "9b203dadd4751fc3fce1211eb3122fb55426e295d07808f7420a360ba186f1ba"
+  },
+  {
+    "url": "https://deb.debian.org/debian/pool/main/p/python3-stdlib-extensions/python3-lib2to3_3.11.2-3_all.deb",
+    "name": "python3-lib2to3_3.11.2-3_all.deb",
+    "size": 76284,
+    "sha256": "4e7f5e01e49a0622d10db3d0995666a6ead6a369cd127a996e9a4f9e91696a51"
+  },
+  {
+    "url": "https://deb.debian.org/debian/pool/main/p/python3-stdlib-extensions/python3-distutils_3.11.2-3_all.deb",
+    "name": "python3-distutils_3.11.2-3_all.deb",
+    "size": 130936,
+    "sha256": "a620b555f301860a08e30534c7e6f7d79818e5e1977bfec39a612e7003074318"
+  },
+  {
+    "url": "https://deb.debian.org/debian/pool/main/p/python-pip/python3-pip-whl_23.0.1%2bdfsg-1_all.deb",
+    "name": "python3-pip-whl_23.0.1+dfsg-1_all.deb",
+    "size": 1717296,
+    "sha256": "cc373690a1cb469fb301b9fe0125048e3102f2e365d1b2d27cab091ec89fccdc"
+  },
+  {
+    "url": "https://deb.debian.org/debian/pool/main/s/setuptools/python3-setuptools-whl_66.1.1-1%2bdeb12u2_all.deb",
+    "name": "python3-setuptools-whl_66.1.1-1+deb12u2_all.deb",
+    "size": 1112076,
+    "sha256": "0eb54da9f3d47e42a1be5dd8285def8bbc6e2556131b9c4ce3bd781dfc4b425a"
+  },
+  {
+    "url": "https://deb.debian.org/debian/pool/main/p/python3-defaults/python3-venv_3.11.2-1%2bb1_amd64.deb",
+    "name": "python3-venv_3.11.2-1+b1_amd64.deb",
+    "size": 1200,
+    "sha256": "bc6c8b8c15ae53abfac54877fd2c830336112568f40ee57c75d5c78ebcf7f44a"
   }
 ]

@@ -4,10 +4,10 @@ Validation in progress, 2026-11-07 Asia/Ho_Chi_Minh. No Creator release has been
 published yet. This document will be finalized after the offline install completes.
 
 Completed:
-- 19 focused tests: raw copy/readback, corrupt/short sources, partial writes,
+- 20 focused tests: raw copy/readback, corrupt/short sources, partial writes,
   download cache/range/HTTPS handling, device identity/system-disk exclusions,
   GPT primary/backup CRCs and partition bounds, initramfs encoding, invalid .deb.
-- All 359 Debian dependency packages downloaded and SHA-256 verified against the
+- All 365 Debian dependency packages downloaded and SHA-256 verified against the
   APT-resolved manifest. Official Debian ISO, CameraWall alpha.40 and AI files
   independently verified against pinned digests.
 - Local composition produced a bootable hybrid image around 1.15 GiB. The actual

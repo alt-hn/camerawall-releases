@@ -1,6 +1,7 @@
 import gzip
 import hashlib
 import io
+import json
 import struct
 import tarfile
 import tempfile
@@ -11,6 +12,15 @@ from prepare import gpt_append, initramfs, control_from_deb
 
 
 class OfflineBootTests(unittest.TestCase):
+    def test_offline_manifest_includes_requested_runtime_packages(self):
+        root = Path(__file__).parent
+        packages = json.loads((root / 'offline/debian-packages.json').read_text())
+        names = {p['name'].split('_')[0] for p in packages}
+        preseed = (root / 'offline/preseed.cfg').read_text()
+        requested = next(line.split(' string ', 1)[1].split() for line in preseed.splitlines() if line.startswith('d-i pkgsel/include '))
+        self.assertFalse(set(requested) - names)
+        self.assertTrue({'python3.11-venv', 'python3-pip-whl', 'python3-setuptools-whl'} <= names)
+
     def test_gpt_mirrors_crc_and_preserves_boot_payload(self):
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / 'disk.img'

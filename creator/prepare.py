@@ -34,7 +34,7 @@ def runtime_files(root):
     files = {'camerawall/' + name: (runtime / name).read_bytes() for name in RUNTIME}
     for name in ('mount-media.sh', 'late-install.sh', 'offline-bootstrap.sh'):
         files['camerawall/' + name] = (root / 'offline' / name).read_bytes()
-    files['usr/lib/apt-setup/generators/01camerawall'] = (root / 'offline/apt-generator.sh').read_bytes()
+    files['usr/lib/apt-setup/generators/02camerawall'] = (root / 'offline/apt-generator.sh').read_bytes()
     files['preseed.cfg'] = (root / 'offline/preseed.cfg').read_bytes()
     files['camerawall/camerawall-firstboot.service'] = files['camerawall/camerawall-firstboot.service'].replace(b'Download and install pinned CameraWall release (Internet needed once)', b'Install cached CameraWall offline').replace(b'Wants=network-online.target\nAfter=network-online.target', b'After=network.target')
     files['camerawall/console-ready.sh'] = files['camerawall/console-ready.sh'].replace(b'CameraWall READY: http://%s', b'CameraWall READY (connect Ethernet for LAN access): http://%s')
@@ -201,7 +201,7 @@ def prepare(root, cache, progress=lambda *_: None):
     files = runtime_files(root)
     data_files = {'cw-initrd.gz': initramfs(files), 'repo/Packages': package_index(packages, paths)}
     data_files['repo/Packages.gz'] = gzip.compress(data_files['repo/Packages'], mtime=0)
-    release = 'Origin: CameraWall offline cache\nLabel: Verified Debian packages\nSuite: offline\nArchitectures: amd64 all\nSHA256:\n'
+    release = 'Origin: CameraWall offline cache\nLabel: Verified Debian packages\nSuite: offline\nDate: Fri, 06 Nov 2026 00:00:00 UTC\nArchitectures: amd64 all\nSHA256:\n'
     for name in ('Packages', 'Packages.gz'):
         payload = data_files['repo/' + name]
         release += f' {hashlib.sha256(payload).hexdigest()} {len(payload)} {name}\n'
