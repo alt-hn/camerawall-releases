@@ -1,7 +1,6 @@
 {
-  "installer": "usb-v0.3.0",
+  "installer": "Offline 1.0.0",
   "application": "v0.1.0-alpha.40",
-  "url": "https://github.com/alt-hn/camerawall-releases/releases/download/usb-v0.3.0/camerawall-usb-v0.3.0-amd64.iso",
-  "sha256": "c721d09d13ea920807f5efffaccd849726df54f17f5484400ba6b266cb4dbf8f",
-  "size": 709165056
+  "mode": "offline",
+  "minimum_usb_bytes": 2147483648
 }

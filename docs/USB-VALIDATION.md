@@ -1,4 +1,7 @@
-# USB 0.3.0 and USB Creator 1.0.0 validation
+# USB 0.3.0 Internet installer validation
+
+For the new offline Creator, see [USB-CREATOR-VALIDATION.md](USB-CREATOR-VALIDATION.md).
+The Creator references below describe the earlier online prototype, not the final offline tool.
 
 Date: 2026-11-06 (Asia/Ho_Chi_Minh). No physical USB/disk was flashed.
 

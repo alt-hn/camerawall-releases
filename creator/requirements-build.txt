@@ -1,2 +1,5 @@
 pyinstaller==6.16.0
 certifi==2026.10.23
+pyfatfs==1.1.0
+pycdlib==1.22.0
+setuptools==80.9.0

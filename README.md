@@ -4,9 +4,19 @@ Self-hosted Linux NVR for RTSP cameras. This repository distributes evaluation b
 
 **Application release pinned by the USB installer: [v0.1.0-alpha.40](https://github.com/alt-hn/camerawall-releases/releases/tag/v0.1.0-alpha.40) — public application release.** Read the attached `VALIDATION.md` for actual test coverage and limitations. Short synthetic tests do not establish sustained full-resolution camera capacity. Proxmox LXC and OS versions beyond the tested Debian environment remain unverified.
 
-## USB Internet installer (x86-64 UEFI)
+## USB Creator — offline installation (macOS / Windows)
 
-Download the [USB installer 0.3.0 unattended evaluation prerelease](https://github.com/alt-hn/camerawall-releases/releases/tag/usb-v0.3.0). Read [Vietnamese flash/install/recovery instructions](docs/USB-INSTALL-VI.md) and [validation scope](docs/USB-VALIDATION.md). **Booting this USB automatically erases the smallest eligible non-boot disk (minimum 24 GiB), without confirmation.** It installs Debian 12, CameraWall alpha.40 and its offline AI runtime. All other disks are preserved.
+Use **CameraWall USB Creator** to select a USB, download verified upstream components,
+create the bootable media locally, flash it and verify readback. No custom CameraWall
+ISO is required. The USB installs Debian, CameraWall alpha.40 and AI dependencies
+without a network connection. See [Vietnamese guide](docs/USB-CREATOR-VI.md),
+[validation](docs/USB-CREATOR-VALIDATION.md) and [source/build](creator/README.md).
+**The destination machine automatically erases its smallest eligible non-boot disk
+(minimum 24 GiB).** The backend runs as root; later application updates use its UI.
+
+The older [USB Internet installer 0.3.0](https://github.com/alt-hn/camerawall-releases/releases/tag/usb-v0.3.0)
+remains available separately and requires Internet while installing. It is not used
+by the offline Creator.
 
 ## Install
 
@@ -50,7 +60,3 @@ Choose Headless, Display or Hybrid under **Local display**. Native output prefer
 ## Tiếng Việt
 
 Chọn **Ngôn ngữ → Tiếng Việt**. Trong trang **Camera**, nhập tài khoản ONVIF rồi nhấn **Quét và thêm ngay**, hoặc bật **Chế độ tự động** để quét mỗi phút và sau khi khởi động. Chọn ghi hình cho camera mới nếu cần. Camera cũ được bỏ qua; mật khẩu được mã hóa khi lưu. Nếu không tìm thấy camera, bật ONVIF, kiểm tra mạng multicast hoặc nhập địa chỉ ONVIF nội bộ. Camera không tương thích vẫn có thể thêm thủ công bằng RTSP. Gói cài đặt có hướng dẫn `docs/AUTO-SETUP-VI.md`.
-
-### CameraWall USB Creator
-
-Native macOS/Windows tool: select a USB, download the pinned image, flash its boot layout and verify readback. See [Vietnamese guide](docs/USB-CREATOR-VI.md) and [Creator source/build](creator/README.md). The USB 0.3.0 appliance pins alpha.40 and runs its backend as root; future application updates use the CameraWall UI.

@@ -19,6 +19,6 @@ else:
     source = root / 'dist/creator/CameraWall USB Creator.app'
     target = out / (name + '.zip')
     subprocess.run(['ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', str(source), str(target)], check=True)
-info = {'file': target.name, 'size': target.stat().st_size, 'sha256': hashlib.sha256(target.read_bytes()).hexdigest(), 'source': subprocess.check_output(['git','rev-parse','HEAD'], cwd=root, text=True).strip(), 'os': platform.platform(), 'arch': platform.machine(), 'python': platform.python_version(), 'image': json.loads((root / 'creator/image.json').read_text()), 'signed': False}
+info = {'file': target.name, 'size': target.stat().st_size, 'sha256': hashlib.sha256(target.read_bytes()).hexdigest(), 'source': subprocess.check_output(['git','rev-parse','HEAD'], cwd=root, text=True).strip(), 'os': platform.platform(), 'arch': platform.machine(), 'python': platform.python_version(), 'recipe': json.loads((root / 'creator/image.json').read_text()), 'signed': False, 'sources_sha256': hashlib.sha256((root / 'creator/offline/sources.json').read_bytes()).hexdigest(), 'debian_packages_sha256': hashlib.sha256((root / 'creator/offline/debian-packages.json').read_bytes()).hexdigest()}
 (out / (name + '.json')).write_text(json.dumps(info, indent=2) + '\n')
 print(json.dumps(info, indent=2))

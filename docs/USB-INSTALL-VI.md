@@ -36,15 +36,11 @@ Linux:
 sha256sum -c SHA256SUMS
 ```
 
-## App tạo USB trên macOS/Windows
+## USB Creator offline — luồng mới
 
-Dùng **CameraWall USB Creator**: mở app → chọn USB → **Xóa USB và tạo bộ cài**.
-App tự tải ISO đã ghim, kiểm SHA-256, xin quyền quản trị, unmount/khóa volume,
-ghi trực tiếp boot image và đọc lại để xác minh. Không cần chọn ISO, format trước,
-Rufus hoặc Etcher. Toàn bộ dữ liệu trên USB được chọn sẽ mất.
-App tạo USB trên Mac Apple Silicon/Intel hoặc Windows x64; USB đích vẫn cài
-**máy Intel/AMD x86-64 UEFI**, không cài lên Apple Silicon.
-Xem [hướng dẫn USB Creator](USB-CREATOR-VI.md) và bản app đính kèm release riêng.
+[CameraWall USB Creator](USB-CREATOR-VI.md) tự tải thành phần từ nguồn chính thức,
+ghép và ghi USB cài offline. Không dùng ISO CameraWall trong tài liệu này.
+Phần còn lại dưới đây dành riêng cho Internet installer usb-v0.3.0 cũ.
 
 ## Flash USB bằng công cụ khác
 

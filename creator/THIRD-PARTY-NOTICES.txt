@@ -1,0 +1,23 @@
+CameraWall USB Creator bundles Python and Tcl/Tk, and uses:
+
+- Python: Python Software Foundation license, https://www.python.org/psf/license/
+- Tcl/Tk: Tcl/Tk BSD-style license, https://www.tcl-lang.org/software/tcltk/license.html
+- PyInstaller bootloader: GPL with application distribution exception,
+  https://pyinstaller.org/en/stable/license.html
+- pyfatfs 1.1.0: MIT; copyright 2018-2024 pyfatfs contributors.
+- PyFilesystem fs 2.4.16: MIT.
+- pycdlib 1.22.0: LGPL-2.1-only. Unmodified source archive is included in
+  creator/vendor in this public repository and attached to the Creator release.
+- certifi 2026.10.23: MPL-2.0; its unmodified CA data is bundled as source.
+- six 1.17.0 and appdirs 1.4.4: MIT.
+
+The Python package metadata bundled with the app includes each package's complete
+license/copyright notices. Creator source/build scripts are public under MIT.
+Users may modify/replace these libraries and rebuild the application; reverse
+engineering for debugging such modifications is permitted. The source archive
+for the LGPL library is provided alongside the executable downloads.
+
+Debian, firmware, CameraWall and AI assets are downloaded separately. Their
+upstream license/notices remain in the downloaded packages, the installed
+/usr/share/doc directories and /opt/camerawall. They are not relabelled as
+Creator-owned software. See usb/LICENSE and the component manifests.

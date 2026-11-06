@@ -8,7 +8,12 @@ import subprocess
 
 
 def run(args):
-    return subprocess.check_output(args, stderr=subprocess.PIPE, timeout=30)
+    try:
+        return subprocess.check_output(args, stderr=subprocess.PIPE, timeout=30)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError('Thiết bị không phản hồi trong 30 giây. Kiểm tra cổng/cáp USB rồi quét lại. Chưa ghi dữ liệu vào ổ nào.') from None
+    except subprocess.CalledProcessError:
+        raise RuntimeError('Không đọc được thông tin ổ từ hệ điều hành. Kiểm tra kết nối USB và quyền truy cập rồi quét lại.') from None
 
 
 def powershell(script):

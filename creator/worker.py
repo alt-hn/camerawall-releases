@@ -1,4 +1,4 @@
-"""Elevated fixed-purpose writer. Never accepts arbitrary image hashes/URLs."""
+"""Elevated fixed-purpose writer. Accepts a locally assembled image; never accepts commands or arbitrary devices."""
 import base64
 import ctypes
 import json
@@ -87,6 +87,9 @@ def execute(encoded, manifest):
     job = json.loads(base64.urlsafe_b64decode(encoded))
     image = job['image']
     selected = job['device']
+    manifest = job['prepared']
+    if not re.fullmatch(r'[a-f0-9]{64}', manifest['sha256']) or not 0 < manifest['size'] <= selected['size']:
+        raise ValueError('Thông tin ảnh USB không hợp lệ.')
     if platform.system() == 'Darwin':
         write_mac(image, selected, manifest)
     elif platform.system() == 'Windows':
@@ -95,8 +98,8 @@ def execute(encoded, manifest):
         raise RuntimeError('Chỉ hỗ trợ macOS và Windows.')
 
 
-def elevated(image, selected):
-    job = base64.urlsafe_b64encode(json.dumps({'image': str(image), 'device': selected}).encode()).decode()
+def elevated(image, selected, prepared):
+    job = base64.urlsafe_b64encode(json.dumps({'image': str(image), 'device': selected, 'prepared': prepared}).encode()).decode()
     if getattr(sys, 'frozen', False):
         command = [sys.executable, '--write', job]
     else:

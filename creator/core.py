@@ -4,6 +4,7 @@ import os
 import ssl
 import certifi
 import urllib.request
+import urllib.parse
 from pathlib import Path
 
 CHUNK = 1024 * 1024
@@ -35,7 +36,7 @@ def verify(path, manifest):
 def download(manifest, cache, progress=lambda *_: None):
     """Pinned HTTPS image; interrupted downloads resume only on valid Content-Range."""
     url = manifest['url']
-    if not url.startswith('https://github.com/alt-hn/camerawall-releases/releases/download/'):
+    if urllib.parse.urlsplit(url).scheme != 'https' or urllib.parse.urlsplit(url).hostname not in {'github.com', 'cdimage.debian.org', 'deb.debian.org', 'security.debian.org', 'files.pythonhosted.org', 'media.githubusercontent.com', 'raw.githubusercontent.com'}:
         raise ValueError('Nguồn bộ cài không được hỗ trợ.')
     cache = Path(cache)
     cache.mkdir(parents=True, exist_ok=True)

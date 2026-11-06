@@ -14,8 +14,8 @@ MANIFEST = json.loads((ROOT / 'image.json').read_text())
 def main():
     if sys.argv[1:] == ['--self-test']:
         import tkinter as tk
-        import core, devices, worker
-        assert len(MANIFEST['sha256']) == 64 and MANIFEST['size'] > 0
+        import core, devices, worker, prepare
+        assert MANIFEST['mode'] == 'offline' and (ROOT / 'offline/sources.json').is_file()
         root = tk.Tk()
         root.update()
         root.destroy()
@@ -34,7 +34,7 @@ def main():
         return 0
     import tkinter as tk
     from tkinter import ttk, messagebox
-    from core import download
+    from prepare import prepare
     from devices import discover, revalidate
     from worker import elevated
 
@@ -56,7 +56,7 @@ def main():
     panel = ttk.Frame(root, padding=32)
     panel.pack(fill='both', expand=True)
     ttk.Label(panel, text='CameraWall', style='Title.TLabel').pack(anchor='w')
-    ttk.Label(panel, text='Tạo USB cài đặt tự động', font=('Arial', 19)).pack(anchor='w', pady=(6, 16))
+    ttk.Label(panel, text='Tạo USB cài đặt offline', font=('Arial', 19)).pack(anchor='w', pady=(6, 16))
     ttk.Label(panel, text=f"{MANIFEST['installer']}  ·  CameraWall {MANIFEST['application']}  ·  x86-64 UEFI", style='Subtitle.TLabel').pack(anchor='w')
     ttk.Separator(panel).pack(fill='x', pady=20)
     ttk.Label(panel, text='1. Chọn USB để ghi bộ cài').pack(anchor='w', pady=(0, 8))
@@ -77,7 +77,7 @@ def main():
     progress.pack(fill='x', pady=(10, 18))
     ttk.Separator(panel).pack(fill='x', pady=(0, 18))
     ttk.Label(panel, text='2. Cắm USB vào máy CameraWall và bật máy', font=('Arial', 14, 'bold')).pack(anchor='w')
-    ttk.Label(panel, text='Máy cần ưu tiên boot USB, UEFI và Ethernet có Internet. Bộ cài tự xóa ổ nhỏ nhất đủ 24 GiB ngoài USB boot, rồi chạy CameraWall bằng root. Các ổ còn lại được giữ nguyên.', style='Subtitle.TLabel', wraplength=650).pack(anchor='w', pady=(8, 0))
+    ttk.Label(panel, text='Máy cần ưu tiên boot USB và UEFI. Cài offline, không cần Internet. Bộ cài tự xóa ổ nhỏ nhất đủ 24 GiB ngoài USB boot, rồi chạy CameraWall bằng root. Các ổ còn lại được giữ nguyên.', style='Subtitle.TLabel', wraplength=650).pack(anchor='w', pady=(8, 0))
     events = queue.Queue()
     state = {'busy': False, 'devices': []}
 
@@ -94,7 +94,7 @@ def main():
         status.set('Đang tìm USB…')
         def work():
             try:
-                event('devices', discover(MANIFEST['size']))
+                event('devices', discover(MANIFEST['minimum_usb_bytes']))
             except Exception as error:
                 event('error', str(error))
         threading.Thread(target=work, daemon=True).start()
@@ -108,15 +108,15 @@ def main():
         start.configure(state='disabled')
         refresh.configure(state='disabled')
         selection.configure(state='disabled')
-        status.set('Đang tải bộ cài CameraWall…')
+        status.set('Đang tải các thành phần từ Debian, CameraWall và nguồn AI…')
         progress.configure(mode='determinate', value=0)
         def work():
             try:
                 cache = Path(os.environ.get('LOCALAPPDATA', Path.home() / 'Library' / 'Caches')) / 'CameraWall USB Creator'
-                image = download(MANIFEST, cache, lambda done, total: event('download', (done, total)))
-                revalidate(selected, MANIFEST['size'])
+                image, image_info = prepare(ROOT, cache, lambda phase, done, total: event(phase, (done, total)))
+                revalidate(selected, image_info['size'])
                 event('writing')
-                elevated(image, selected)
+                elevated(image, selected, image_info)
                 event('done')
             except Exception as error:
                 event('error', str(error))
@@ -128,7 +128,11 @@ def main():
             if kind == 'download':
                 done, total = data
                 progress.configure(value=100 * done / total)
-                status.set(f'Tải bộ cài: {done / 1024**2:.0f} / {total / 1024**2:.0f} MiB — sau đó tự kiểm checksum')
+                status.set(f'Chuẩn bị dữ liệu: {done / 1024**2:.0f} / {total / 1024**2:.0f} MiB — kiểm checksum từng file')
+            elif kind == 'prepare':
+                status.set('Đang tạo bộ cài offline và cấu trúc USB bootable trên máy này…')
+                progress.configure(mode='indeterminate')
+                progress.start(20)
             elif kind == 'writing':
                 status.set('Đang xin quyền quản trị, ghi và đọc lại USB để kiểm tra. Giữ USB cắm nguyên.')
                 progress.configure(mode='indeterminate')

@@ -1,52 +1,61 @@
-# CameraWall USB Creator 1.0.0
+# CameraWall USB Creator 1.0.0 — cài offline
 
-App tạo **USB boot được**, dành cho macOS Apple Silicon, macOS Intel và Windows x64.
-Không cần cài Python, tải ISO thủ công, Rufus hoặc Etcher.
+**Chỉ tải app Creator cho macOS hoặc Windows. Không cần tải ISO CameraWall.**
+App tự lấy Debian chính thức, gói phụ thuộc, CameraWall alpha.40 và AI từ các
+nguồn đã ghim SHA-256, rồi tạo USB bootable ngay trên máy bạn.
 
-1. Mở app đúng hệ điều hành, cắm USB tối thiểu 2 GiB và bấm **Quét lại**.
-2. Chọn đúng tên/dung lượng USB. Bấm **Xóa USB và tạo bộ cài** — toàn bộ dữ liệu
-   trên USB này sẽ mất. Không tự chọn sẵn thiết bị.
-3. App tải/nối tiếp tải ISO đã ghim từ GitHub, kiểm SHA-256 rồi xin quyền quản trị
-   của macOS/Windows. Chấp nhận yêu cầu quyền ghi USB bằng tài khoản quản trị.
-4. App unmount/khóa volume, ghi trực tiếp boot image, flush và đọc lại toàn bộ
-   vùng ISO để kiểm checksum. Chỉ báo xong khi đọc lại khớp. Giữ USB cắm nguyên.
-5. Khi báo hoàn tất, tháo USB; Windows có thể hiện yêu cầu format vì không nhận
-   filesystem của bộ cài — chọn Cancel, không format lại.
-6. Cắm vào máy CameraWall Intel/AMD x86-64 UEFI đã ưu tiên boot USB, nối Ethernet
-   có DHCP/Internet và bật máy. Bộ cài tự xóa ổ nhỏ nhất đủ 24 GiB ngoài ổ USB boot,
-   cài Debian + CameraWall alpha.40, rồi chạy backend bằng root. Màn hình máy đích
-   hiển thị IP/mật khẩu. Giữ USB cắm nguyên khi reboot không kích hoạt cài lại.
+## Tạo USB
 
-**Mac là máy tạo USB, không phải đích cài CameraWall trên Apple Silicon.**
-App chỉ liệt kê ổ vật lý qua USB, loại trừ ổ hệ thống/boot, ổ chỉ đọc và sector 4K.
-Nếu rút/đổi thiết bị sau khi chọn, bộ ghi kiểm lại danh tính và từ chối khi khác.
-Không có ô nhập đường dẫn thiết bị tùy ý hoặc tùy chọn bỏ qua bảo vệ.
+1. Mở app đúng hệ điều hành: Mac Apple Silicon, Mac Intel hoặc Windows x64.
+   Không cần cài Python, Rufus hoặc Etcher. Máy tạo USB cần Internet.
+2. Cắm USB **tối thiểu 2 GiB thực** (khuyến nghị 4 GB trở lên), bấm **Quét lại**,
+   chọn đúng tên và dung lượng. Ổ hệ thống/boot của máy tạo USB bị loại trừ.
+3. Bấm **Xóa USB và tạo bộ cài**. Toàn bộ dữ liệu trên USB được chọn sẽ mất.
+   App tải và kiểm checksum từng thành phần, ghép bộ cài cục bộ, rồi xin quyền
+   quản trị macOS/Windows để unmount/khóa volume và ghi trực tiếp boot image.
+4. Giữ USB cắm nguyên tới khi app đọc lại vùng image và báo checksum khớp.
+   Windows có thể đề nghị format phân vùng không nhận diện được: chọn Cancel.
+
+Dữ liệu tải lần đầu khoảng **1,1 GiB**, ảnh USB tạo cục bộ khoảng **1,15 GiB**;
+đây là bộ cài đầy đủ cho offline, không phải dung lượng của app Creator.
+Nên để trống ít nhất 4 GiB trên máy tạo USB cho cache và file tạm. Lần sau app
+kiểm tra/tái sử dụng cache, nối tiếp file tải dở. Không tự bỏ qua checksum.
+
+## Cắm vào máy CameraWall
+
+- Đích cài là **Intel/AMD x86-64 UEFI**, tối thiểu 2 GB RAM. Mac Apple Silicon
+  có thể tạo USB nhưng không phải đích cài hệ điều hành này. Secure Boot chưa
+  được kiểm chứng; dùng UEFI, tắt Secure Boot và ưu tiên boot USB trong firmware.
+- **Không cần Internet hoặc Ethernet trong quá trình cài.** USB chứa Debian,
+  FFmpeg/Python, CameraWall và toàn bộ wheel/model AI cần thiết.
+- Bật máy: USB tự cài không cần bấm phím. **Tự xóa toàn bộ ổ nhỏ nhất đủ 24 GiB
+  ngoài ổ đang boot**; nếu bằng dung lượng, chọn theo tên thiết bị Linux. Các ổ
+  khác được khóa chỉ đọc trong phiên cài. Không có ổ hợp lệ thì dừng.
+- Máy tự reboot và chạy CameraWall bằng root. Giữ USB cắm nguyên không gây cài
+  lại khi marker hệ điều hành đã cài tồn tại. Mất điện trước khi có marker có thể
+  dẫn tới một lần cài mới; không có rollback phân vùng.
+- Màn hình hiện READY và mật khẩu. Cắm Ethernet có DHCP để nhận IP và dùng UI
+  CameraWall từ một máy khác trong LAN. Internet chỉ cần khi kiểm tra/tải update.
 
 ## Cập nhật về sau
 
-Dùng phần cập nhật trong UI CameraWall. Cập nhật app bình thường không cần tạo
-lại USB. Profile root của bản appliance nằm riêng trong service drop-in và được
-giữ qua việc thay file service khi nâng cấp. Một tính năng quản trị mới cần được
-triển khai trong CameraWall thì mới thao tác được qua UI; chạy root không tự tạo
-ra UI cho mọi lệnh hệ điều hành.
+Dùng phần cập nhật trong UI CameraWall; cập nhật app thông thường không cần tạo
+lại USB. Chế độ tự động mặc định Off, timer vẫn sẵn sàng cho lựa chọn trong UI.
+Profile backend root nằm riêng trong systemd drop-in, giữ qua cập nhật thay unit.
+Tính năng quản trị mới phải được triển khai trong CameraWall thì mới có UI dùng;
+root không tự tạo giao diện cho mọi lệnh hệ điều hành. Media service vẫn có user riêng.
 
-USB Creator 1.0.0 ghim ISO usb-v0.3.0 và alpha.40 (latest được kiểm tra khi build),
-không âm thầm chọn image mới khác checksum. App Creator mới sẽ ghim image mới;
-CameraWall đã cài dùng updater riêng.
+Creator ghim bộ thành phần đã kiểm chứng; nếu upstream thay/xóa gói ghim, cần bản
+Creator cập nhật. Không âm thầm đổi sang gói khác. **Chế độ cài online riêng để
+bổ sung sau**; bản Creator này mặc định offline và không tự fallback sang mạng.
+Các ISO `usb-v*` cũ là luồng Internet installer riêng, không phải đầu vào Creator.
 
-## Phạm vi kiểm tra và đóng gói
+## Phạm vi phát hành
 
-Đã kiểm logic truyền file/ghi/đọc lại và bảo vệ lựa chọn bằng fixture; ghi ISO thật
-vào file USB mô phỏng và boot bằng QEMU UEFI. CameraWall alpha.40 đã đạt READY
-với UID 0 trong VM, giữ root sau chạy lại install.sh --upgrade. Không flash ổ thật.
-Các file .app/.exe đóng gói kèm Python/Tk; mã nguồn và workflow build nằm trong repo.
-Xem USB-VALIDATION.md và metadata riêng từng gói để biết OS/kiến trúc thực tế.
+Các gói .app/.exe kèm runtime, nguồn và workflow build công khai. Xem
+[kiểm chứng Creator](USB-CREATOR-VALIDATION.md) để phân biệt kiểm tra VM, build
+native và USB vật lý. Không có ổ thật nào được flash trong quá trình phát triển.
 
-Bản đầu chưa có chữ ký Developer ID/notarization của Apple hay Authenticode của
-Windows; hệ điều hành có thể chặn hoặc cảnh báo app tải từ Internet. Không tuyên
-bố bản đã ký hay trải nghiệm mở app không cảnh báo. Việc cấp chứng chỉ/ký phát hành
-cần thông tin phát hành tương ứng; không tự sử dụng chứng chỉ của ứng dụng khác.
-
-Chưa xác minh ghi USB vật lý trên macOS/Windows, hộp thoại cấp quyền trên mọi OS,
-Secure Boot hoặc khả năng boot của mọi thin client. Ghi dở do rút USB/mất điện cần
-chạy lại; đọc lại checksum xác minh vùng image, không phải kiểm sức khỏe toàn bộ USB.
+Bản đầu chưa có chữ ký Developer ID/notarization của Apple hoặc Authenticode của
+Windows; hệ điều hành có thể cảnh báo/chặn app tải từ Internet. Không tự sử dụng
+chứng chỉ của sản phẩm khác và không tuyên bố app đã ký phát hành.

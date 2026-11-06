@@ -1,3 +1,9 @@
+## USB Creator 1.0.0 offline — 2026-11-07
+
+- Download official Debian media, dependency packages, CameraWall and AI assets directly; compose bootable media locally instead of downloading a custom CameraWall ISO.
+- Bundle a verified local APT repository and firstboot cache for installation without any network.
+- Preserve zero-input target installation, boot-disk exclusion and root appliance behavior.
+
 ## USB installer 0.3.0 / USB Creator 1.0.0 — 2026-11-06
 
 - Native macOS/Windows USB Creator downloads a pinned ISO, writes the boot image and verifies readback.
