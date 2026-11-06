@@ -34,7 +34,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix='cw-writer-fixture-') as directory:
         root = Path(directory)
         image = root / 'fixture.dmg'
-        subprocess.run(['/usr/bin/hdiutil', 'create', '-size', '128m', '-layout', 'MBRSPUD', '-fs', 'MS-DOS', '-format', 'UDRW', str(image)], check=True, capture_output=True)
+        subprocess.run(['/usr/bin/hdiutil', 'create', '-size', '128m', '-layout', 'MBRSPUD', '-fs', 'MS-DOS', str(image)], check=True)
         attached = plist(['/usr/bin/hdiutil', 'attach', '-nobrowse', '-plist', str(image)])
         devices = [e['dev-entry'] for e in attached['system-entities'] if e.get('dev-entry') and e.get('content-hint') == 'FDisk_partition_scheme']
         assert len(devices) == 1, attached
