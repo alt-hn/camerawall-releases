@@ -5,7 +5,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
 CACHE = ROOT / '.cache'
 OUT = ROOT / 'dist'
-VERSION = 'usb-v0.2.0'
+VERSION = 'usb-v0.3.0'
 DEBIAN = '12.15.0'
 FINGERPRINT = 'DF9B9C49EAA9298432589D76DA87E80D6294BE9B'
 ISO = f'debian-{DEBIAN}-amd64-netinst.iso'
@@ -52,7 +52,7 @@ with tempfile.TemporaryDirectory(prefix='cw-iso-') as stage:
     stage = pathlib.Path(stage)
     payload = stage / 'camerawall'
     payload.mkdir()
-    names = ('preseed.cfg', 'select-disk.sh', 'late-install.sh', 'bootstrap.sh', 'console-ready.sh', 'camerawall-console.service',
+    names = ('preseed.cfg', 'select-disk.sh', 'late-install.sh', 'bootstrap.sh', 'root-service.conf', 'console-ready.sh', 'camerawall-console.service',
              'provision-analytics.py', 'analytics-downloads.json', 'release.env', 'camerawall-firstboot.service', 'LICENSE')
     for name in names:
         shutil.copy2(ROOT/'usb'/name, payload/name)
@@ -71,7 +71,7 @@ with tempfile.TemporaryDirectory(prefix='cw-iso-') as stage:
     md5.write_text('\n'.join(md5lines)+'\n')
     # Replay keeps the official signed kernel, shim, GRUB and hybrid USB/EFI layout.
     run('xorriso', '-indev', str(original), '-outdev', str(output),
-        '-boot_image', 'any', 'replay', '-volid', 'CAMERAWALL_USB_020',
+        '-boot_image', 'any', 'replay', '-volid', 'CAMERAWALL_USB_030',
         '-map', str(payload), '/camerawall',
         '-map', str(ROOT/'usb/grub.cfg'), '/boot/grub/grub.cfg',
         '-map', str(ROOT/'usb/isolinux.cfg'), '/isolinux/isolinux.cfg',

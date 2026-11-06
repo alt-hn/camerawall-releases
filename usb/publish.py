@@ -4,7 +4,7 @@ import hashlib, json, os, pathlib, subprocess, sys, urllib.request
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
 REPO = 'alt-hn/camerawall-releases'
-TAG = 'usb-v0.2.0'
+TAG = 'usb-v0.3.0'
 OUT = ROOT/'dist'
 
 def run(*args):
@@ -51,11 +51,11 @@ if existing.returncode == 0:
     prior = json.loads(run('gh','api',f'repos/{REPO}/releases/{release_id}'))
     assert prior['draft'] and prior['tag_name'] == TAG, 'Never replace a public release'
     run('gh','release','edit',TAG,'--repo',REPO,'--target',head,
-        '--title','CameraWall USB installer 0.2.0 (Debian 12 / x86-64 UEFI)',
+        '--title','CameraWall USB installer 0.3.0 (Debian 12 / x86-64 UEFI)',
         '--notes-file',str(OUT/'USB-RELEASE-NOTES.md'),'--prerelease','--latest=false')
 else:
     run('gh','release','create',TAG,'--repo',REPO,'--target',head,'--draft','--prerelease','--latest=false',
-        '--title','CameraWall USB installer 0.2.0 (Debian 12 / x86-64 UEFI)',
+        '--title','CameraWall USB installer 0.3.0 (Debian 12 / x86-64 UEFI)',
         '--notes-file',str(OUT/'USB-RELEASE-NOTES.md'))
     release_id = json.loads(run('gh','release','view',TAG,'--repo',REPO,'--json','databaseId'))['databaseId']
 run('gh','release','upload',TAG,'--repo',REPO,'--clobber',*map(str,assets))

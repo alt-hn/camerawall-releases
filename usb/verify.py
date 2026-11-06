@@ -4,7 +4,7 @@ import hashlib, json, pathlib, subprocess, tempfile
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT/'dist'
 info = json.loads((OUT/'BUILD-INFO.json').read_text())
-iso = OUT/'camerawall-usb-v0.2.0-amd64.iso'
+iso = OUT/'camerawall-usb-v0.3.0-amd64.iso'
 h = hashlib.sha256()
 with iso.open('rb') as f:
     for block in iter(lambda:f.read(1024*1024), b''):
@@ -16,7 +16,7 @@ with tempfile.TemporaryDirectory(prefix='cw-verify-') as directory:
         subprocess.run(['xorriso','-osirrox','on','-indev',str(image),'-extract',remote,str(local)],check=True,capture_output=True)
     payload = directory/'payload'
     extract(iso,'/camerawall',payload)
-    for name in ('preseed.cfg','select-disk.sh','late-install.sh','bootstrap.sh', 'console-ready.sh', 'camerawall-console.service','provision-analytics.py','analytics-downloads.json','release.env','camerawall-firstboot.service','LICENSE'):
+    for name in ('preseed.cfg','select-disk.sh','late-install.sh','bootstrap.sh', 'root-service.conf', 'console-ready.sh', 'camerawall-console.service','provision-analytics.py','analytics-downloads.json','release.env','camerawall-firstboot.service','LICENSE'):
         assert (payload/name).read_bytes() == (ROOT/'usb'/name).read_bytes(), name
     assert (payload/'USB-INSTALL-VI.md').read_bytes() == (ROOT/'docs/USB-INSTALL-VI.md').read_bytes()
     assert 'commit='+info['installer_source_commit'] in (payload/'INSTALLER-SOURCE.txt').read_text()

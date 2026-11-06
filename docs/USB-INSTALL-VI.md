@@ -1,6 +1,6 @@
-# USB tự cài CameraWall — usb-v0.2.0
+# USB tự cài CameraWall — usb-v0.3.0
 
-Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứa Debian 12.15 netinst và firmware chính thức, không chứa CameraWall hoặc toàn bộ hệ điều hành đã cài. Debian tải gói từ `deb.debian.org`/`security.debian.org`; CameraWall tải **v0.1.0-alpha.29** từ GitHub Releases. OpenCV/NumPy tải từ PyPI, ba model YuNet/SFace/YOLOX từ commit OpenCV Zoo đã ghim; mọi file đều kiểm SHA-256 trước khi dùng. Không cần dịch vụ cloud riêng. Sau khi hoàn tất, CameraWall hoạt động trong LAN không cần Internet; cập nhật phần mềm vẫn cần Internet.
+Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứa Debian 12.15 netinst và firmware chính thức, không chứa CameraWall hoặc toàn bộ hệ điều hành đã cài. Debian tải gói từ `deb.debian.org`/`security.debian.org`; CameraWall tải **v0.1.0-alpha.40** từ GitHub Releases. OpenCV/NumPy tải từ PyPI, ba model YuNet/SFace/YOLOX từ commit OpenCV Zoo đã ghim; mọi file đều kiểm SHA-256 trước khi dùng. Không cần dịch vụ cloud riêng. Sau khi hoàn tất, CameraWall hoạt động trong LAN không cần Internet; cập nhật phần mềm vẫn cần Internet.
 
 **USB này tự xóa ổ nhỏ nhất đủ 24 GiB ngoài ổ đang boot, không hỏi xác nhận. Chỉ boot trên máy bạn chủ đích cài lại.**
 
@@ -15,12 +15,12 @@ Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứ
 
 ## Tải và kiểm tra
 
-Tải ISO `camerawall-usb-v0.2.0-amd64.iso` cùng `SHA256SUMS` từ [release USB](https://github.com/alt-hn/camerawall-releases/releases/tag/usb-v0.2.0). Đối chiếu đủ 64 ký tự SHA-256 (không phân biệt chữ hoa/thường) trước khi flash; khác checksum thì xóa file tải lỗi và tải lại.
+Tải ISO `camerawall-usb-v0.3.0-amd64.iso` cùng `SHA256SUMS` từ [release USB](https://github.com/alt-hn/camerawall-releases/releases/tag/usb-v0.3.0). Đối chiếu đủ 64 ký tự SHA-256 (không phân biệt chữ hoa/thường) trước khi flash; khác checksum thì xóa file tải lỗi và tải lại.
 
 Windows PowerShell:
 
 ```powershell
-Get-FileHash .\camerawall-usb-v0.2.0-amd64.iso -Algorithm SHA256
+Get-FileHash .\camerawall-usb-v0.3.0-amd64.iso -Algorithm SHA256
 Get-Content .\SHA256SUMS
 ```
 
@@ -36,7 +36,17 @@ Linux:
 sha256sum -c SHA256SUMS
 ```
 
-## Flash USB
+## App tạo USB trên macOS/Windows
+
+Dùng **CameraWall USB Creator**: mở app → chọn USB → **Xóa USB và tạo bộ cài**.
+App tự tải ISO đã ghim, kiểm SHA-256, xin quyền quản trị, unmount/khóa volume,
+ghi trực tiếp boot image và đọc lại để xác minh. Không cần chọn ISO, format trước,
+Rufus hoặc Etcher. Toàn bộ dữ liệu trên USB được chọn sẽ mất.
+App tạo USB trên Mac Apple Silicon/Intel hoặc Windows x64; USB đích vẫn cài
+**máy Intel/AMD x86-64 UEFI**, không cài lên Apple Silicon.
+Xem [hướng dẫn USB Creator](USB-CREATOR-VI.md) và bản app đính kèm release riêng.
+
+## Flash USB bằng công cụ khác
 
 **Chọn nhầm ổ sẽ xóa dữ liệu.** Rút ổ USB backup; đối chiếu tên, model và dung lượng USB trước khi bấm ghi. Không chỉ copy file ISO vào USB.
 
@@ -48,12 +58,12 @@ Không có lệnh `dd` với tên ổ mặc định để tránh ghi nhầm ổ 
 
 ## Cài tự động, không bấm phím
 
-**Bản 0.2.0 tự xóa toàn bộ ổ nhỏ nhất đủ 24 GiB ngoài ổ đang boot. Không hỏi mật khẩu, không chọn ổ, không nhập ERASE, không hỏi xác nhận phân vùng.** Ổ SSD, HDD, eMMC và USB khác đều có thể làm đích. Nếu cùng dung lượng, thứ tự tên thiết bị Linux quyết định (ví dụ `/dev/sda` trước `/dev/sdb`). Dung lượng tối thiểu tính theo GiB thực, không phải nhãn GB của nhà sản xuất.
+**Bản 0.3.0 tự xóa toàn bộ ổ nhỏ nhất đủ 24 GiB ngoài ổ đang boot. Không hỏi mật khẩu, không chọn ổ, không nhập ERASE, không hỏi xác nhận phân vùng.** Ổ SSD, HDD, eMMC và USB khác đều có thể làm đích. Nếu cùng dung lượng, thứ tự tên thiết bị Linux quyết định (ví dụ `/dev/sda` trước `/dev/sdb`). Dung lượng tối thiểu tính theo GiB thực, không phải nhãn GB của nhà sản xuất.
 
 1. Flash ISO vào USB. Đặt firmware thin client boot USB trước, UEFI, tắt Secure Boot. Đây là thiết lập firmware trước khi dùng; USB không tự thay đổi thứ tự boot của hãng.
 2. Cắm USB và Ethernet có DHCP/Internet, bật máy. Sau 3 giây menu tự vào cài đặt. **Mọi dữ liệu trên ổ đích được chọn tự động sẽ mất.** Các ổ khác bị khóa chỉ đọc trong phiên cài.
 3. Máy tự cài Debian, tạo mật khẩu Linux riêng, cài GRUB rồi reboot. Có thể để nguyên USB: nếu tìm thấy marker của CameraWall đã cài, USB chuyển sang hệ điều hành đó, không cài/xóa lại.
-4. Máy tự tải CameraWall alpha.29, các dependency AI và model, kiểm checksum rồi chạy dịch vụ. Đợi màn hình **CameraWall READY** hiển thị địa chỉ IP và mật khẩu ban đầu. Truy cập `http://IP` từ LAN bằng mật khẩu web được hiển thị. Mật khẩu Linux `cwadmin` khác mật khẩu web; không có mật khẩu chung trong ISO.
+4. Máy tự tải CameraWall alpha.40, các dependency AI và model, kiểm checksum rồi chạy dịch vụ. Đợi màn hình **CameraWall READY** hiển thị địa chỉ IP và mật khẩu ban đầu. Truy cập `http://IP` từ LAN bằng mật khẩu web được hiển thị. Mật khẩu Linux `cwadmin` khác mật khẩu web; không có mật khẩu chung trong ISO.
 
 Mật khẩu ban đầu được hiển thị **chỉ trên màn hình gắn tại máy**, không ghi journal hoặc gửi mạng. Sau khi ghi lại và đổi mật khẩu, có thể tắt việc hiển thị bằng `sudo systemctl disable camerawall-console.service`. File lưu ban đầu chỉ root đọc được; sau khi đổi mật khẩu, những giá trị này không tự cập nhật.
 
@@ -92,7 +102,7 @@ File tải dở nằm trong `/var/lib/camerawall-usb/`; curl thử nối tiếp 
 - **Không mở được web:** xem `hostname -I`, IP DHCP trong router, `systemctl status camerawall camerawall-media`, và `journalctl -u camerawall`. `active` riêng lẻ chưa chứng minh HTTP/video đã sẵn sàng.
 - **Không boot USB:** flash lại bằng DD/image mode, kiểm checksum, chọn UEFI, tắt Secure Boot, thử cổng USB khác. Không hỗ trợ ARM/Raspberry Pi trong bản này.
 
-Không cần Internet cho xem/ghi camera LAN sau khi đã READY. Tác vụ auto-download CameraWall được tắt trong bản USB; admin chủ động cập nhật. Cần NTP hoặc đồng hồ máy chính xác để timestamp camera đáng tin cậy.
+Không cần Internet cho xem/ghi camera LAN sau khi đã READY. Chế độ cập nhật tự động mặc định là Off trên máy mới; timer vẫn được bật để admin có thể đổi chế độ ngay trong UI. Cần NTP hoặc đồng hồ máy chính xác để timestamp camera đáng tin cậy.
 
 ## Nguồn, bảo mật và phạm vi kiểm chứng
 
@@ -101,3 +111,17 @@ Xem `USB-VALIDATION.md`, `BUILD-INFO.json`, `DEBIAN-SIGNATURE.txt`, `BOOT-LAYOUT
 Nguồn Debian: [Debian 12 installer](https://www.debian.org/releases/bookworm/debian-installer/), [ISO 12.15](https://cdimage.debian.org/cdimage/archive/12.15.0/amd64/iso-cd/), [kiểm chữ ký Debian](https://www.debian.org/CD/verify). Build xác minh chữ ký checksum bằng Debian CD key fingerprint `DF9B9C49EAA9298432589D76DA87E80D6294BE9B`, rồi kiểm SHA-256 ISO. Debian Installer/APT xác minh chữ ký kho và hash gói; không tắt xác minh APT dù mirror dùng HTTP. CameraWall dùng HTTPS và SHA-256 ghim trong ISO, kiểm thêm source commit trong archive; đây không phải chữ ký phát hành độc lập của CameraWall.
 
 Debian/firmware giữ giấy phép upstream; copyright và license của các gói được cài nằm ở `/usr/share/doc/*/copyright`. Mã nguồn Debian tương ứng có tại [Debian package pool](https://deb.debian.org/debian/pool/) và [Debian snapshot](https://snapshot.debian.org/). CameraWall giữ license/third-party notices trong archive và `/opt/camerawall/`. Scripts của bộ USB nằm công khai trong repo release dưới giấy phép `usb/LICENSE`.
+
+## Quyền root và cập nhật qua UI
+
+Bản 0.3.0 chạy backend CameraWall bằng **root**, theo cấu hình appliance riêng
+`/etc/systemd/system/camerawall.service.d/90-appliance-root.conf`. Cấu hình này
+được giữ khi cập nhật thay file service chính. Media service vẫn dùng tài khoản
+riêng. Backend root có quyền hệ thống rộng hơn; chỉ cấp tài khoản admin UI cho
+người quản trị máy.
+
+Sau khi READY, dùng phần cập nhật trong UI CameraWall để kiểm tra/cài phiên bản
+mới. Không cần flash lại USB cho cập nhật app thông thường. Tính năng mới sẽ
+xuất hiện theo bản CameraWall cập nhật; các thao tác hệ thống chỉ làm qua UI khi
+đã có chức năng/helper tương ứng, không phải một terminal root tùy ý. Bản này
+không tự chuyển provider mạng hoặc bật toàn bộ host-admin tùy chọn.

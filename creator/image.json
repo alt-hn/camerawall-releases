@@ -1,0 +1,7 @@
+{
+  "installer": "usb-v0.3.0",
+  "application": "v0.1.0-alpha.40",
+  "url": "https://github.com/alt-hn/camerawall-releases/releases/download/usb-v0.3.0/camerawall-usb-v0.3.0-amd64.iso",
+  "sha256": "BUILD_REQUIRED",
+  "size": 0
+}

@@ -1,4 +1,4 @@
-# CameraWall unattended USB installer 0.2.0
+# CameraWall unattended USB installer 0.3.0
 
 Build with Python 3.9+, curl, GnuPG and xorriso: `python3 usb/build.py`.
 Inspect the actual ISO with `python3 usb/verify.py`. Publish with
@@ -25,7 +25,7 @@ so leaving USB inserted does not reformat the system. A marker is written only
 once GRUB and firstboot services exist. A power cut before that point may lead
 to another install attempt on the next boot; it is not a transactional rollback.
 
-Pinned CameraWall alpha.29 and AI components are downloaded during firstboot,
+Pinned CameraWall alpha.40 and AI components are downloaded during firstboot,
 with checksums, retries and resumable cache. They run locally after completion.
 Application source remains private and is not rebuilt or republished by this USB.
 

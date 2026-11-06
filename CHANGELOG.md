@@ -1,3 +1,9 @@
+## USB installer 0.3.0 / USB Creator 1.0.0 — 2026-11-06
+
+- Native macOS/Windows USB Creator downloads a pinned ISO, writes the boot image and verifies readback.
+- Pin current application alpha.40 and run the appliance backend as root through a persistent service drop-in.
+- Keep the existing zero-input, smallest eligible non-boot disk installation policy.
+
 ## USB installer 0.2.0 — 2026-11-06
 
 - Boot and install automatically without keyboard/mouse input; choose the smallest eligible non-boot disk.

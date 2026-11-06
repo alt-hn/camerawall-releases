@@ -2,7 +2,7 @@
 set -eu
 [ -s /tmp/camerawall-system-disk ] || exit 1
 mkdir -p /target/usr/local/lib/camerawall-usb /target/var/lib/camerawall-usb
-cp /cdrom/camerawall/bootstrap.sh /cdrom/camerawall/release.env /target/usr/local/lib/camerawall-usb/
+cp /cdrom/camerawall/bootstrap.sh /cdrom/camerawall/root-service.conf /cdrom/camerawall/release.env /target/usr/local/lib/camerawall-usb/
 cp /cdrom/camerawall/provision-analytics.py /cdrom/camerawall/analytics-downloads.json /target/usr/local/lib/camerawall-usb/
 cp /cdrom/camerawall/camerawall-firstboot.service /target/etc/systemd/system/
 cp /tmp/camerawall-system-disk /target/var/lib/camerawall-usb/system-disk
@@ -31,4 +31,4 @@ in-target python3 -c 'import os,pathlib,secrets,subprocess; p=secrets.token_urls
 # GRUB on the USB detects this marker on subsequent boots and loads the installed
 # system. Write only after the OS bootloader and firstboot service exist.
 [ -s /target/boot/grub/grub.cfg ] || exit 1
-printf 'CameraWall unattended installer 0.2.0\n' > /target/camerawall-installed.marker
+printf 'CameraWall unattended installer 0.3.0\n' > /target/camerawall-installed.marker

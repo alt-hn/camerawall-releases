@@ -46,9 +46,18 @@ echo 'Installing signed Debian dependencies and the offline analytics runtime...
 apt-get -o Acquire::Retries=5 update
 DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y --no-install-recommends python3-venv libglib2.0-0 libgomp1
 python3 "$base/provision-analytics.py"
+# A dedicated drop-in survives future install.sh --upgrade unit replacements.
+install -d -m 0755 /etc/systemd/system/camerawall.service.d
+install -m 0644 "$base/root-service.conf" /etc/systemd/system/camerawall.service.d/90-appliance-root.conf
+# Keep the timer available for UI settings, but start fresh appliances in off mode.
+if [[ ! -e /var/lib/camerawall/update-settings.json ]]; then
+ install -d -m 0755 /var/lib/camerawall
+ printf '{"mode":"off","auto_download":false}\n' > /var/lib/camerawall/update-settings.json
+fi
 bash "unpacked/camerawall_${CAMERAWALL_VERSION}_linux_amd64/install.sh"
-# No unattended Internet download after installation; updates remain an admin choice.
-systemctl disable --now camerawall-auto-download.timer
+[[ $(systemctl show camerawall.service -p User --value) == root ]]
+# The timer honors the persisted UI mode; manual updates remain available.
+systemctl enable --now camerawall-auto-download.timer
 for attempt in $(seq 1 120); do
  if curl --noproxy '*' -fsS --max-time 5 http://127.0.0.1/ >/dev/null && systemctl is-active --quiet camerawall.service camerawall-media.service; then
   printf 'version=%s\nsource_commit=%s\ncompleted=%s\n' "$CAMERAWALL_VERSION" "$CAMERAWALL_SOURCE_COMMIT" "$(date -u +%FT%TZ)" > "$state/complete"

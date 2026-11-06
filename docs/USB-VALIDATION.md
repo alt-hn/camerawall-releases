@@ -1,88 +1,65 @@
-# USB installer validation — usb-v0.2.0
+# USB 0.3.0 and USB Creator 1.0.0 validation
 
-Validation date: **2026-11-06, Asia/Ho_Chi_Minh**. Evaluation installer;
-physical thin-client qualification and deployment are not claimed.
+Date: 2026-11-06 (Asia/Ho_Chi_Minh). No physical USB/disk was flashed.
 
-## Artifact and provenance
+## Image provenance
 
-- Debian **12.15.0 amd64 netinst**, official ISO SHA-256
-  `cd4462c06aa8892e692c0c4b9c17802f38c8ab8690e85cbfb5ccaa5956e9af17`.
-- Detached checksum signature verified with Debian CD signing key
-  `DF9B9C49EAA9298432589D76DA87E80D6294BE9B`.
-- Existing CameraWall **v0.1.0-alpha.29**, archive SHA-256
-  `2cb8bee4fb154af3aa753c345c9f9165b903c2de5576a134167423690904fefd`,
-  application source `a1d21d088334a76bf986afd2c271a07a9c9a9381`.
-  No application source is changed or rebuilt for this installer.
-- Pinned OpenCV 4.12.0.88, NumPy 2.0.2, YuNet/SFace/YOLOX models and licenses
-  are verified by SHA-256 during provisioning.
-- Final ISO verification extracts and compares all runtime payloads and menus
-  with committed source. Debian EFI image, kernel and initrd remain byte-identical.
-  BUILD-INFO.json records source commit, source cleanliness and ISO digest;
-  BOOT-LAYOUT.txt records UEFI El Torito and hybrid MBR/GPT layout.
+Debian 12.15.0 amd64 netinst retains the official EFI image, kernel and initrd.
+Builder verifies Debian CD key DF9B9C49EAA9298432589D76DA87E80D6294BE9B and
+ISO SHA-256 cd4462c06aa8892e692c0c4b9c17802f38c8ab8690e85cbfb5ccaa5956e9af17.
+The final ISO is rebuilt from clean pushed main; its payload/menu files are
+extracted and compared with source. BUILD-INFO.json identifies that exact build.
 
-## Zero-input installation
+Pinned application: v0.1.0-alpha.40 (public latest at selection), SHA-256
+bec332ff9313035ced4a5a0883bd410ba17321a85cd6824b85acc99854ad1753,
+source 32b0714d9f96db7492c43b077f43bd88bf287358. Archive digest and embedded source
+were read back. No private application source is modified or published.
 
-QEMU 11.1.3, EDK II UEFI, x86-64 TCG on Apple Silicon, 4 CPUs and 2 GiB RAM.
-Only disposable disk images were attached; no physical disk was flashed.
+## VM evidence
 
-Three writable guest disks were present:
+- The unchanged disk selection/preseed/USB marker path was fully installed and
+  rebooted without input under usb-v0.2.0. Its evidence is retained at that tag.
+  This release does not claim a second complete Debian installation.
+- The new bootstrap, pinned application and root service profile were installed
+  into that disposable Debian 12 QEMU guest. Pinned AI files loaded, firstboot
+  reached READY, CameraWall and media services were active, and HTTP login worked.
+- /proc/PID/status showed all backend UIDs = 0. Running the packaged
+  install.sh --upgrade preserved the root drop-in and the backend restarted as
+  UID 0. Application/media accounts and existing credentials/data were preserved.
+- Authenticated GET /api/updates returned current=alpha.40 and enabled=true.
+  The automatic update timer remains enabled, with fresh-appliance mode Off, so
+  later UI mode changes can take effect. No newer release was fabricated to
+  claim a complete web-triggered upgrade to a nonexistent version.
+- Creator's actual copy-and-verify routine wrote the full development ISO into
+  a disposable raw USB image, flushed it and verified the SHA-256 by reading it
+  back. QEMU EDK II booted that output through USB storage into the unattended
+  Debian installer. This verifies boot-image copying, not physical controller I/O.
 
-| Device during installation | Size | Role |
-| --- | --- | --- |
-| sda | 48 GiB | Rotating SCSI HDD with an existing sentinel |
-| sdb | 24 GiB | Boot USB, intentionally large enough to qualify by size |
-| sdc | 32 GiB | Separate USB installation destination |
+## Creator tests and packaging
 
-The default menu timed out and completed Debian installation, partitioning,
-Linux account creation, reboot, application download, AI provisioning and READY
-without a keypress or mouse click. Installer log selected **sdc**, excluded **sdb**,
-and protected all other disks. Root and EFI partitions were read back on sdc.
-The 48 GiB HDD compared identical to its pre-install image after shutdown.
+15 focused fixture tests cover correct raw copying/readback, partial/failed writes,
+corrupt/short sources rejected before writes, corrupt readback, cached-image
+revalidation, interrupted download/range behavior, HTTPS downgrade rejection,
+USB replacement, absent identities/4K sectors and external macOS system exclusion.
 
-The boot USB was never selected or repartitioned. During operation, its EFI FAT
-image had one byte changed (sector 2496, offset 37, 0 to 1); after clean shutdown,
-all original ISO bytes compared identical again. This is not a claim of zero
-firmware writes. The kernel disk guard protects it before partitioning.
+The native app was visually inspected on macOS for layout/contrast and the empty
+USB state. Final packages are built natively per architecture via the public
+workflow; per-package metadata records source, OS, architecture, image pin and
+SHA-256. Build success is separate from physical flash/OS privilege prompt tests.
 
-A separate VM with only the 24 GiB boot USB stopped at the explicit error:
-"No writable, unused destination of at least 24 GiB outside the boot disk."
-No fallback destination was selected. No input was supplied to dismiss the error.
+The root configuration intentionally increases backend privilege at the owner's
+request. It survives replacement of the base systemd unit. Future changes to
+installer/update semantics may require integration review; persistence is not
+promised against an updater explicitly removing custom drop-ins.
 
-## Ready state and subsequent USB boot
+## Limits
 
-- CameraWall and its media service started; firstboot reached READY after pinned
-  dependencies and all three models loaded successfully.
-- HTTP administrator login returned 200 and a session cookie using the generated
-  password. Secret values and cookies are excluded from published evidence.
-- Generated Linux password matched the cwadmin shadow hash; its file mode was 0600.
-- Local console displayed READY, LAN URL and both initial passwords. Journal
-  content was checked for both passwords and did not contain them.
-- Reboot retained completion state and credentials. A separate cold boot reset
-  UEFI NVRAM to ensure the **installer USB** was first. Firmware readback showed
-  BootCurrent pointing to CW-BOOT-24GB; the USB loaded the installed OS through
-  its marker. No second installation or selection of the spare HDD occurred.
+Unverified: physical USB writing, Windows UAC/macOS administrator dialogs end to end,
+real thin-client boot/NIC/storage/HDMI, Secure Boot, ARM target installation, camera
+throughput, long recordings and every power-loss boundary. The Creator apps are
+initially unsigned (no Apple notarization/Developer ID or Windows Authenticode).
+No claim is made that OS download/security warnings are absent.
 
-The full install used a development image of the final successful installation
-path. Two subsequent changes were separately exercised: the no-destination error
-dialog in the boot-only VM, and the getty Type=exec override in the installed VM
-(to prevent Debian's delayed getty startup from clearing credentials on reboot).
-The final ISO is rebuilt from clean pushed main and its exact files are verified;
-a second complete Debian installation of that final remaster is not claimed.
-
-## Scope and limits
-
-The unchanged bootstrap's download-resume, checksum-rejection, recovery and
-restricted-network reboot tests belong to **usb-v0.1.0**, whose validation remains
-available under that tag. They are not presented as newly repeated 0.2.0 tests.
-
-Not established: physical thin-client boot, real SATA/NVMe/eMMC controllers or NIC
-firmware, Secure Boot, Wi-Fi, USB Ethernet, real camera throughput, recording soak,
-physical HDMI or power failure at every write boundary. VM evidence establishes
-selection/exclusion and unattended setup, not compatibility with every machine.
-Firmware must already prefer USB; Ethernet/DHCP/Internet must work for installation.
-A power failure before the installed marker exists may restart installation and
-erase the selected disk again. There is no transactional partition rollback.
-
-Publication checks the clean pushed-main tag, all asset SHA-256 digests/sizes,
-anonymous public links and unchanged application latest-release feed. The large
-published ISO is not downloaded again solely for readback.
+The system boot disk and other unselected USB devices are not written by fixture
+or CI tests. No host networking was modified. Installer disk protection/zero-input
+behavior remains subject to the firmware USB-first and working Ethernet prerequisites.
