@@ -1,0 +1,17 @@
+[Unit]
+Description=Download and install pinned CameraWall release (Internet needed once)
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=!/var/lib/camerawall-usb/complete
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/camerawall-usb/bootstrap.sh
+TimeoutStartSec=45min
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

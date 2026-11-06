@@ -1,0 +1,10 @@
+{
+ "$schema":"https://wails.io/schemas/config.v2.json",
+ "name":"CameraWall USB Creator",
+ "outputfilename":"CameraWall USB Creator",
+ "frontend:dir":"frontend",
+ "frontend:install":"",
+ "frontend:build":"",
+ "author":{"name":"CameraWall","email":""},
+ "info":{"companyName":"CameraWall","productName":"CameraWall USB Creator","productVersion":"2.0.0","copyright":"CameraWall contributors","comments":"Offline USB creator"}
+}

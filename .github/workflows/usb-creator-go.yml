@@ -1,0 +1,45 @@
+name: Build Go USB Creator
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+            label: windows-x64
+          - os: macos-15-intel
+            label: macos-intel
+          - os: macos-15
+            label: macos-arm64
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: creator-go
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: creator-go/go.mod
+          cache-dependency-path: creator-go/go.sum
+      - run: go test ./...
+      - run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.1
+      - run: wails build -clean
+      - name: Verify compiled artifact
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            './build/bin/CameraWall USB Creator.app/Contents/MacOS/CameraWall USB Creator' --self-test
+            codesign --verify --deep --strict './build/bin/CameraWall USB Creator.app'
+          else
+            './build/bin/CameraWall USB Creator.exe' --self-test
+          fi
+      - run: go run ./tools/package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: creator-go-${{ matrix.label }}
+          path: dist/creator-v2.0.0/*
+          if-no-files-found: error

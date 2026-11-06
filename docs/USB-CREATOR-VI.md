@@ -1,4 +1,4 @@
-# CameraWall USB Creator 1.0.1 — cài offline
+# CameraWall USB Creator 2.0.0 — cài offline
 
 **Bản đầu để thử trên máy thật: chưa kiểm chứng trọn vẹn cài offline tới khi CameraWall chạy.**
 
@@ -9,7 +9,8 @@ nguồn đã ghim SHA-256, rồi tạo USB bootable ngay trên máy bạn.
 ## Tạo USB
 
 1. Mở app đúng hệ điều hành: Mac Apple Silicon, Mac Intel hoặc Windows x64.
-   Không cần cài Python, Rufus hoặc Etcher. Máy tạo USB cần Internet.
+   App Go biên dịch sẵn, không cần Python, Rufus hoặc Etcher.
+   Mac cần macOS 13 trở lên; Windows 10/11 cần WebView2 runtime. Máy tạo USB cần Internet.
 2. Cắm USB **tối thiểu 2 GiB thực** (khuyến nghị 4 GB trở lên), bấm **Quét lại**,
    chọn đúng tên và dung lượng. Ổ hệ thống/boot của máy tạo USB bị loại trừ.
 3. Bấm **Xóa USB và tạo bộ cài**. Toàn bộ dữ liệu trên USB được chọn sẽ mất.
@@ -56,9 +57,17 @@ Các ISO `usb-v*` cũ là luồng Internet installer riêng, không phải đầ
 ## Phạm vi phát hành
 
 Các gói .app/.exe kèm runtime, nguồn và workflow build công khai. Xem
-[kiểm chứng Creator](USB-CREATOR-VALIDATION.md) để phân biệt kiểm tra VM, build
+[kiểm chứng Creator](USB-CREATOR-2-VALIDATION.md) để phân biệt kiểm tra VM, build
 native và USB vật lý. Không có ổ thật nào được flash trong quá trình phát triển.
 
 Bản đầu chưa có chữ ký Developer ID/notarization của Apple hoặc Authenticode của
 Windows; hệ điều hành có thể cảnh báo/chặn app tải từ Internet. Không tự sử dụng
 chứng chỉ của sản phẩm khác và không tuyên bố app đã ký phát hành.
+
+## Theo dõi tiến độ
+
+Giao diện có bảy giai đoạn riêng. Mỗi file hiển thị dung lượng, tiến độ và trạng
+thái tải/cache/checksum; thao tác có nhật ký, tốc độ và thời gian đã chạy. Phần trăm
+chỉ hiển thị khi biết tổng dữ liệu; hộp thoại hệ điều hành và metadata không có tổng
+sẽ hiện trạng thái chờ. Có thể dừng chuẩn bị và thử lại từ cache; không dừng giữa lúc
+ghi/đọc lại USB. Windows xin quyền sau khi chuẩn bị, ngay trước khi ghi.

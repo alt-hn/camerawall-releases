@@ -1,0 +1,11 @@
+[Unit]
+Description=Show CameraWall address and initial credentials on the local display
+Wants=camerawall-firstboot.service getty@tty1.service
+After=camerawall-firstboot.service getty@tty1.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/camerawall-usb/console-ready.sh
+
+[Install]
+WantedBy=multi-user.target

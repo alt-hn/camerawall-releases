@@ -1,3 +1,13 @@
+## USB Creator 2.0.0 — 2026-11-07
+
+- Replace Python/Tk desktop runtime with compiled Go + Wails for macOS/Windows.
+- Per-stage and per-file byte progress, cache/checksum state, transfer speed,
+  elapsed time, retry details and action log. Cancel/resume preparation from cache.
+- Port verified offline composition and guarded raw write/readback to Go.
+- macOS requests device authorization through authopen before downloading.
+- The Python 1.0.1 fix was superseded before publication. Full physical offline
+  installation remains for the owner's testing; no custom ISO is published.
+
 ## USB Creator 1.0.1 — 2026-11-07
 
 - macOS: replace the AppleScript/root raw-device open with Apple's authopen
