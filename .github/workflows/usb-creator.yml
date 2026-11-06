@@ -26,6 +26,9 @@ jobs:
       - name: Verify Windows native writer on disposable VHD
         if: runner.os == 'Windows'
         run: python creator/test_native_windows.py
+      - name: Verify macOS native writer on disposable disk image
+        if: runner.os == 'macOS'
+        run: python creator/test_native_mac.py
       - name: Verify native GUI runtime
         run: python -c "import tkinter; r=tkinter.Tk(); r.update(); r.destroy()"
       - run: python creator/build.py

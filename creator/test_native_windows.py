@@ -47,8 +47,8 @@ def main():
             worker.write_windows(image, selected, {'size': len(payload), 'sha256': hashlib.sha256(payload).hexdigest()})
             print('PASS: Windows volume lock, dismount, raw write, flush and SHA256 readback on disposable VHD')
         finally:
-            script.write_text(f'select vdisk file="{vhd}"\ndetach vdisk\n', encoding='ascii')
-            subprocess.run(['diskpart', '/s', str(script)], check=True, capture_output=True)
+            powershell(f"Dismount-DiskImage -ImagePath '{literal}' -ErrorAction Stop | Out-Null")
+            assert powershell(f"(Get-DiskImage -ImagePath '{literal}').Attached").strip() == 'False'
 
 
 if __name__ == '__main__':
