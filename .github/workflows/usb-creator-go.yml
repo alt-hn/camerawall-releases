@@ -25,6 +25,10 @@ jobs:
         with:
           go-version-file: creator-go/go.mod
           cache-dependency-path: creator-go/go.sum
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/i18n.test.cjs
       - run: go test ./...
       - run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.1
       - run: wails build -clean

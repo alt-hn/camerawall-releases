@@ -18,6 +18,10 @@ Completed locally:
   dependency closure, HTTP resume range matching and USB replacement rejection.
 - Native UI detected the owner's DataTraveler 3.0, 28.8 GiB USB.
 - Compact UI and new USB/camera icon rendered in the native macOS app.
+- EN/VI presentation covers controls, warnings, progress, logs and application errors;
+  system language selects the initial locale, with a persistent manual override.
+  Native macOS launch selected EN, switching to VI updated the interface and
+  reopening retained VI. Focused tests cover locale fallback and dynamic messages.
 - Owner-triggered retry on DataTraveler 3.0 (28.8 GiB) completed all seven stages
   in 2 min 12 sec. Raw-device cache flush succeeded and the full written image
   passed SHA-256 readback. The app displayed safe-to-remove completion.

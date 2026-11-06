@@ -19,6 +19,7 @@ nguồn đã ghim SHA-256, rồi tạo USB bootable ngay trên máy bạn.
    Windows xin quyền quản trị trước khi khóa volume và ghi.
 4. Giữ USB cắm nguyên tới khi app đọc lại vùng image và báo checksum khớp.
    Windows có thể đề nghị format phân vùng không nhận diện được: chọn Cancel.
+   macOS có thể báo “disk not readable”: chọn Ignore, không Initialize.
 
 Dữ liệu tải lần đầu khoảng **1,1 GiB**, ảnh USB tạo cục bộ khoảng **1,15 GiB**;
 đây là bộ cài đầy đủ cho offline, không phải dung lượng của app Creator.
@@ -58,7 +59,8 @@ Các ISO `usb-v*` cũ là luồng Internet installer riêng, không phải đầ
 
 Các gói .app/.exe kèm runtime, nguồn và workflow build công khai. Xem
 [kiểm chứng Creator](USB-CREATOR-2-VALIDATION.md) để phân biệt kiểm tra VM, build
-native và USB vật lý. Không có ổ thật nào được flash trong quá trình phát triển.
+native và USB vật lý. Lần flash do chủ thiết bị chạy trên DataTraveler 3.0 đã
+qua cả ghi và đọc lại checksum; cài hoàn chỉnh trên máy đích vẫn cần kiểm chứng.
 
 Bản đầu chưa có chữ ký Developer ID/notarization của Apple hoặc Authenticode của
 Windows; hệ điều hành có thể cảnh báo/chặn app tải từ Internet. Không tự sử dụng
@@ -71,3 +73,8 @@ thái tải/cache/checksum; thao tác có nhật ký, tốc độ và thời gia
 chỉ hiển thị khi biết tổng dữ liệu; hộp thoại hệ điều hành và metadata không có tổng
 sẽ hiện trạng thái chờ. Có thể dừng chuẩn bị và thử lại từ cache; không dừng giữa lúc
 ghi/đọc lại USB. Windows xin quyền sau khi chuẩn bị, ngay trước khi ghi.
+
+## Ngôn ngữ
+
+App tự chọn VI khi ngôn ngữ chính của máy là tiếng Việt, EN cho các ngôn ngữ khác.
+Đổi EN/VI ở góc trên; lựa chọn được lưu cho lần mở sau. Không đổi ngôn ngữ bộ cài Debian.
