@@ -11,7 +11,10 @@ hybrid GPT/MBR extension and backup GPT relocation. Official Debian EFI/kernel/i
 remain in their original extents. FAT label is deliberately <=8 characters to avoid
 8.3 volume-label truncation. Existing FAT work files are recreated before formatting.
 `devices.py`: physical writable USB discovery, boot/system exclusions, revalidation.
-`worker.py`: fixed-purpose elevated writing; accepts only the selected/revalidated
+`mac_access.py`: Apple authopen authorization for the selected raw USB before
+download/preparation; the unprivileged GUI retains the authorized descriptor.
+The app declares NSRemovableVolumesUsageDescription.
+`worker.py`: fixed-purpose Windows elevated writing; accepts only the selected/revalidated
 USB and a verified locally prepared image, never generic commands or device paths.
 
 The runtime payload mounts the data partition only on the actual installer disk,

@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import platform
+import plistlib
 import re
 import subprocess
 import sys
@@ -22,3 +23,12 @@ if platform.system() == 'Windows':
 else:
     args += ['--onedir']
 subprocess.run(args + [str(root / 'app.py')], check=True)
+
+if platform.system() == 'Darwin':
+    app = root.parent / 'dist/creator/CameraWall USB Creator.app'
+    info = app / 'Contents/Info.plist'
+    settings = plistlib.loads(info.read_bytes())
+    settings['NSRemovableVolumesUsageDescription'] = 'CameraWall cần truy cập USB bạn chọn để tạo bộ cài bootable và kiểm tra dữ liệu sau khi ghi.'
+    info.write_bytes(plistlib.dumps(settings))
+    # Updating Info.plist invalidates PyInstaller's local ad-hoc signature.
+    subprocess.run(['/usr/bin/codesign', '--force', '--deep', '--sign', '-', str(app)], check=True)

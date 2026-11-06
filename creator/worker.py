@@ -13,18 +13,10 @@ from devices import powershell, revalidate
 
 
 def write_mac(image, selected, manifest):
-    if os.geteuid() != 0:
-        raise PermissionError('Cần quyền quản trị để ghi USB.')
-    revalidate(selected, manifest['size'])
-    name = selected['id']
-    if not re.fullmatch(r'disk[0-9]+', name):
-        raise ValueError('Thiết bị không hợp lệ.')
-    subprocess.run(['/usr/sbin/diskutil', 'unmountDisk', '/dev/' + name], check=True, capture_output=True)
-    revalidate(selected, manifest['size'])
-    with open(image, 'rb') as source, open('/dev/r' + name, 'r+b', buffering=0) as target:
-        revalidate(selected, manifest['size'])
-        copy_and_verify(source, target, manifest, sync=lambda: os.fsync(target.fileno()))
-    subprocess.run(['/usr/sbin/diskutil', 'eject', '/dev/' + name], check=True, capture_output=True)
+    from mac_access import authorized_usb, write_authorized, eject
+    with authorized_usb(selected, manifest['size']) as target:
+        write_authorized(image, selected, manifest, target)
+    eject(selected)
 
 
 def write_windows(image, selected, manifest):

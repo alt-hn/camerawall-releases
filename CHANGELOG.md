@@ -1,3 +1,12 @@
+## USB Creator 1.0.1 — 2026-11-07
+
+- macOS: replace the AppleScript/root raw-device open with Apple's authopen
+  descriptor authorization, requested for the selected USB before downloading.
+- Declare the removable-volume usage description; preserve device revalidation,
+  checksum verification and unprivileged GUI. Cancelling permission writes nothing.
+- Fix based on a physical Mac EPERM report; full offline installation remains
+  unverified. No cache deletion or physical USB flashing during this fix.
+
 ## USB Creator 1.0.0 offline — 2026-11-07
 
 - Download official Debian media, dependency packages, CameraWall and AI assets directly; compose bootable media locally instead of downloading a custom CameraWall ISO.

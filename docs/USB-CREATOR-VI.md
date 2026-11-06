@@ -1,4 +1,4 @@
-# CameraWall USB Creator 1.0.0 — cài offline
+# CameraWall USB Creator 1.0.1 — cài offline
 
 **Bản đầu để thử trên máy thật: chưa kiểm chứng trọn vẹn cài offline tới khi CameraWall chạy.**
 
@@ -13,8 +13,9 @@ nguồn đã ghim SHA-256, rồi tạo USB bootable ngay trên máy bạn.
 2. Cắm USB **tối thiểu 2 GiB thực** (khuyến nghị 4 GB trở lên), bấm **Quét lại**,
    chọn đúng tên và dung lượng. Ổ hệ thống/boot của máy tạo USB bị loại trừ.
 3. Bấm **Xóa USB và tạo bộ cài**. Toàn bộ dữ liệu trên USB được chọn sẽ mất.
-   App tải và kiểm checksum từng thành phần, ghép bộ cài cục bộ, rồi xin quyền
-   quản trị macOS/Windows để unmount/khóa volume và ghi trực tiếp boot image.
+   Trên Mac, app xin quyền cho đúng USB trước khi tải; cho phép truy cập ổ rời
+   khi macOS hỏi. App tải, kiểm checksum, ghép bộ cài cục bộ rồi ghi trực tiếp.
+   Windows xin quyền quản trị trước khi khóa volume và ghi.
 4. Giữ USB cắm nguyên tới khi app đọc lại vùng image và báo checksum khớp.
    Windows có thể đề nghị format phân vùng không nhận diện được: chọn Cancel.
 

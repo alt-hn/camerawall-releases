@@ -15,6 +15,8 @@ def main():
     if sys.argv[1:] == ['--self-test']:
         import tkinter as tk
         import core, devices, worker, prepare
+        if platform.system() == 'Darwin':
+            import mac_access
         assert MANIFEST['mode'] == 'offline' and (ROOT / 'offline/sources.json').is_file()
         root = tk.Tk()
         root.update()
@@ -113,10 +115,19 @@ def main():
         def work():
             try:
                 cache = Path(os.environ.get('LOCALAPPDATA', Path.home() / 'Library' / 'Caches')) / 'CameraWall USB Creator'
-                image, image_info = prepare(ROOT, cache, lambda phase, done, total: event(phase, (done, total)))
-                revalidate(selected, image_info['size'])
-                event('writing')
-                elevated(image, selected, image_info)
+                if platform.system() == 'Darwin':
+                    from mac_access import authorized_usb, write_authorized, eject
+                    event('authorizing')
+                    with authorized_usb(selected, MANIFEST['minimum_usb_bytes']) as target:
+                        image, image_info = prepare(ROOT, cache, lambda phase, done, total: event(phase, (done, total)))
+                        event('writing')
+                        write_authorized(image, selected, image_info, target)
+                    eject(selected)
+                else:
+                    image, image_info = prepare(ROOT, cache, lambda phase, done, total: event(phase, (done, total)))
+                    revalidate(selected, image_info['size'])
+                    event('writing')
+                    elevated(image, selected, image_info)
                 event('done')
             except Exception as error:
                 event('error', str(error))
@@ -125,7 +136,9 @@ def main():
     def poll():
         while not events.empty():
             kind, data = events.get_nowait()
-            if kind == 'download':
+            if kind == 'authorizing':
+                status.set('Đang xin quyền truy cập USB từ macOS trước khi tải. Cho phép truy cập ổ rời khi được hỏi.')
+            elif kind == 'download':
                 done, total = data
                 progress.configure(value=100 * done / total)
                 status.set(f'Chuẩn bị dữ liệu: {done / 1024**2:.0f} / {total / 1024**2:.0f} MiB — kiểm checksum từng file')

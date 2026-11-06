@@ -10,7 +10,7 @@ root = Path(__file__).resolve().parents[1]
 label = sys.argv[1]
 out = root / 'dist' / 'creator-packages'
 out.mkdir(parents=True, exist_ok=True)
-name = 'CameraWall-USB-Creator-1.0.0-' + label
+name = 'CameraWall-USB-Creator-1.0.1-' + label
 if platform.system() == 'Windows':
     source = root / 'dist/creator/CameraWall USB Creator.exe'
     target = out / (name + '.exe')

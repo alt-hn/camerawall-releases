@@ -13,7 +13,7 @@ def plist(command):
 
 
 def write_fixture(image_path, source_path, device):
-    import worker
+    import worker, mac_access
     image_path = Path(image_path).resolve()
     def validate(selected, minimum):
         images = plist(['/usr/bin/hdiutil', 'info', '-plist'])['images']
@@ -24,7 +24,7 @@ def write_fixture(image_path, source_path, device):
         info = plist(['/usr/sbin/diskutil', 'info', '-plist', '/dev/' + selected['id']])
         assert info['WholeDisk'] and info['VirtualOrPhysical'] == 'Virtual'
         assert info['TotalSize'] >= minimum
-    worker.revalidate = validate
+    mac_access.revalidate = validate
     source = Path(source_path)
     worker.write_mac(source, {'id': device}, {'size': source.stat().st_size, 'sha256': hashlib.sha256(source.read_bytes()).hexdigest()})
     print('PASS: macOS unmount, raw write, flush, SHA256 readback and eject on disposable disk image')

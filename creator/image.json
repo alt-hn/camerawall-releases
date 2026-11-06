@@ -1,5 +1,5 @@
 {
-  "installer": "Offline 1.0.0",
+  "installer": "Offline 1.0.1",
   "application": "v0.1.0-alpha.40",
   "mode": "offline",
   "minimum_usb_bytes": 2147483648
