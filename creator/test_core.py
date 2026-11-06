@@ -124,6 +124,7 @@ class DeviceTests(unittest.TestCase):
             self.assertEqual(devices.discover(100), [base])
 
     def test_mac_system_usb_excluded(self):
+        system_usb = True
         def run(args):
             if 'ioreg' in args[0]:
                 return plistlib.dumps([{'BSD Name': 'disk5', 'Whole': True, 'IORegistryEntryID': 10}])
@@ -132,10 +133,12 @@ class DeviceTests(unittest.TestCase):
             if args[-1] == '/':
                 return plistlib.dumps({'DeviceIdentifier': 'disk6s1s1'})
             if args[1] == 'apfs':
-                return plistlib.dumps({'Containers': [{'PhysicalStores': [{'DeviceIdentifier': 'disk5s2'}], 'Volumes': [{'Roles': ['System']}]}]})
-            return plistlib.dumps({'Whole': True, 'Internal': False, 'VirtualOrPhysical': 'Physical', 'BusProtocol': 'USB', 'Writable': True, 'TotalSize': 32 * 1024**3})
+                return plistlib.dumps({'Containers': [{'PhysicalStores': [{'DeviceIdentifier': 'disk5s2'}], 'Volumes': [{'Roles': ['System']}]}] if system_usb else []})
+            return plistlib.dumps({'WholeDisk': True, 'Internal': False, 'VirtualOrPhysical': 'Unknown', 'BusProtocol': 'USB', 'Writable': True, 'TotalSize': 32 * 1024**3})
         with patch('devices.run', side_effect=run):
             self.assertEqual(devices.mac_devices(), [])
+            system_usb = False
+            self.assertEqual(devices.mac_devices()[0]['id'], 'disk5')
 
 
 if __name__ == '__main__':

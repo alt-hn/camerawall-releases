@@ -42,7 +42,10 @@ def mac_devices():
         if not re.fullmatch(r'disk[0-9]+', name):
             continue
         info = plistlib.loads(run(['/usr/sbin/diskutil', 'info', '-plist', name]))
-        if not info.get('Whole') or info.get('Internal', True) or info.get('VirtualOrPhysical') != 'Physical':
+        # diskutil uses WholeDisk (IORegistry uses Whole). Membership in the
+        # external/physical listing is authoritative; modern macOS may report
+        # VirtualOrPhysical=Unknown even for physical disks.
+        if not info.get('WholeDisk') or info.get('Internal', True) or info.get('VirtualOrPhysical') == 'Virtual':
             continue
         if info.get('BusProtocol') != 'USB' or not info.get('Writable', False):
             continue
@@ -51,7 +54,7 @@ def mac_devices():
         root = plistlib.loads(run(['/usr/sbin/diskutil', 'info', '-plist', '/']))
         protected = {root.get('ParentWholeDisk'), root.get('DeviceIdentifier')}
         for item in root.get('APFSPhysicalStores', []):
-            store = item.get('DeviceIdentifier', '')
+            store = item.get('DeviceIdentifier') or item.get('APFSPhysicalStore', '')
             protected.add(re.sub(r's[0-9]+$', '', store))
         apfs = plistlib.loads(run(['/usr/sbin/diskutil', 'apfs', 'list', '-plist']))
         for container in apfs.get('Containers', []):

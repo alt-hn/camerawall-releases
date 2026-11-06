@@ -22,7 +22,7 @@ def write_fixture(image_path, source_path, device):
         entries = {e.get('dev-entry') for e in matches[0]['system-entities']}
         assert '/dev/' + selected['id'] in entries
         info = plist(['/usr/sbin/diskutil', 'info', '-plist', '/dev/' + selected['id']])
-        assert info['Whole'] and info['VirtualOrPhysical'] == 'Virtual'
+        assert info['WholeDisk'] and info['VirtualOrPhysical'] == 'Virtual'
         assert info['TotalSize'] >= minimum
     worker.revalidate = validate
     source = Path(source_path)
