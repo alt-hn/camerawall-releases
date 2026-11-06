@@ -9,6 +9,7 @@ from unittest.mock import patch
 import mac_access
 
 
+@unittest.skipUnless(hasattr(socket.socket, 'sendmsg'), 'Unix descriptor passing only')
 class AuthorizationTests(unittest.TestCase):
     def test_authorized_descriptor_does_not_write_and_closes(self):
         with tempfile.TemporaryDirectory() as directory:
