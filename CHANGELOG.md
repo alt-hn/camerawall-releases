@@ -5,6 +5,9 @@
   elapsed time, retry details and action log. Cancel/resume preparation from cache.
 - Port verified offline composition and guarded raw write/readback to Go.
 - macOS requests device authorization through authopen before downloading.
+- Flush macOS raw USB devices with DKIOCSYNCHRONIZECACHE, fixing the error at
+  100% write before checksum readback. Explain the separate macOS unreadable-media notice.
+- Compact 880×650 interface and new USB/camera app icon with editable SVG source.
 - The Python 1.0.1 fix was superseded before publication. Full physical offline
   installation remains for the owner's testing; no custom ISO is published.
 

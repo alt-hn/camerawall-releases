@@ -236,3 +236,26 @@ func platformRun(ctx context.Context, a *App, d Device) error {
 func helperMain(args []string) error {
 	return errors.New("không sử dụng helper Windows trên macOS")
 }
+
+// Raw disks do not implement F_FULLFSYNC, which os.File.Sync uses on macOS.
+// Apple's sys/disk.h defines DKIOCSYNCHRONIZECACHE as _IO('d', 22).
+func flushDevice(f *os.File) error {
+	info, err := f.Stat()
+	if err != nil {
+		return err
+	}
+	if info.Mode()&os.ModeDevice == 0 {
+		return f.Sync()
+	}
+	const dkSynchronizeCache = 0x20006416
+	for {
+		err = unix.IoctlSetInt(int(f.Fd()), dkSynchronizeCache, 0)
+		if err != unix.EINTR {
+			break
+		}
+	}
+	if err != nil {
+		return fmt.Errorf("flush USB cache: %w", err)
+	}
+	return nil
+}

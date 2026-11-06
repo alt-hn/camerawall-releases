@@ -305,3 +305,5 @@ func writeWindows(a *App, d Device, img Image) error {
 	}
 	return control(h, 0x70140)
 }
+
+func flushDevice(f *os.File) error { return f.Sync() }

@@ -272,7 +272,7 @@ func (a *App) writeImage(ctx context.Context, image Image, target *os.File, sele
 		return e
 	}
 	a.progress(image.Size, image.Size, "Đang flush dữ liệu xuống thiết bị")
-	if e = target.Sync(); e != nil {
+	if e = flushDevice(target); e != nil {
 		return e
 	}
 	a.phase("readback", "Đọc lại USB và đối chiếu SHA-256", image.Size, "bytes")

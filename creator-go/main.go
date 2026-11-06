@@ -43,7 +43,7 @@ func main() {
 	}
 	assets, _ := fs.Sub(bundled, "frontend")
 	app := newApp()
-	err := wails.Run(&options.App{Title: "CameraWall USB Creator", Width: 1080, Height: 810, MinWidth: 900, MinHeight: 680, AssetServer: &assetserver.Options{Assets: assets}, BackgroundColour: &options.RGBA{R: 245, G: 247, B: 250, A: 1}, OnStartup: app.startup, OnBeforeClose: func(ctx context.Context) bool { return app.isBusy() }, Bind: []interface{}{app}})
+	err := wails.Run(&options.App{Title: "CameraWall USB Creator", Width: 880, Height: 650, MinWidth: 800, MinHeight: 600, AssetServer: &assetserver.Options{Assets: assets}, BackgroundColour: &options.RGBA{R: 245, G: 247, B: 250, A: 1}, OnStartup: app.startup, OnBeforeClose: func(ctx context.Context) bool { return app.isBusy() }, Bind: []interface{}{app}})
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
