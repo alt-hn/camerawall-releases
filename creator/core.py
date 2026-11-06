@@ -1,6 +1,8 @@
 """Shared image transfer logic. This module never opens a device by name."""
 import hashlib
 import os
+import ssl
+import certifi
 import urllib.request
 from pathlib import Path
 
@@ -52,7 +54,7 @@ def download(manifest, cache, progress=lambda *_: None):
         offset = 0
     if offset < manifest['size']:
         request = urllib.request.Request(url, headers={'User-Agent': 'CameraWall-USB-Creator/1.0', 'Range': f'bytes={offset}-'})
-        with urllib.request.urlopen(request, timeout=60) as response:
+        with urllib.request.urlopen(request, timeout=60, context=ssl.create_default_context(cafile=certifi.where())) as response:
             if not response.url.startswith('https://'):
                 raise ValueError('Tải bộ cài yêu cầu HTTPS.')
             append = offset > 0 and response.status == 206
