@@ -1,3 +1,10 @@
+## USB Creator 2.0.4 — 2026-11-08
+
+- Keep graphical installer controls inside a padded 1024×600 safe area when
+  the framebuffer reports a larger screen.
+- Use only the partition confirmation questions provided by Debian Installer
+  and show a visible error if disk preparation fails.
+
 ## USB Creator 2.0.3 — 2026-11-07
 
 - Sign and notarize the universal macOS release for Gatekeeper.

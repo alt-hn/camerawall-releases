@@ -6,10 +6,10 @@ Self-hosted Linux NVR for RTSP cameras. This repository distributes evaluation b
 
 ## USB Creator — offline installation (macOS / Windows)
 
-Download [**CameraWall USB Creator 2.0.3**](https://github.com/alt-hn/camerawall-releases/releases/tag/creator-v2.0.3) to select a USB, download verified upstream components,
+Download [**CameraWall USB Creator 2.0.4**](https://github.com/alt-hn/camerawall-releases/releases/tag/creator-v2.0.4) to select a USB, download verified upstream components,
 create the bootable media locally, flash it and verify readback. Version 2 is compiled
 Go + Wails, with per-stage/per-file progress, transfer speed and action logs. No custom CameraWall
-ISO is required. Creator 2.0.3 checks GitHub for the latest public
+ISO is required. Creator 2.0.4 checks GitHub for the latest public
 CameraWall release at USB creation and reuses only checksum-matching packages.
 The resulting USB installs Debian, CameraWall, the matching HDMI renderer and
 AI dependencies without a network connection; full offline installation still awaits physical validation. See [Vietnamese guide](docs/USB-CREATOR-VI.md),

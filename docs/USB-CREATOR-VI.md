@@ -43,7 +43,9 @@ kiểm tra/tái sử dụng cache, nối tiếp file tải dở. Không tự b�
   SHA-256 của các tệp trên USB. Nếu kiểm tra thất bại, bộ cài báo lỗi và dừng
   trước khi phân vùng. Cảnh báo hiện tên và
   dung lượng ổ đích, đếm ngược **10 giây** rồi tiếp tục nếu bạn không bấm **Cancel**.
-  Có thể chọn chế độ text ở menu boot khi cần.
+  Từ Creator 2.0.4, giao diện đồ họa đặt các nút trong vùng có lề của
+  1024×600, kể cả khi framebuffer báo 1024×768. Có thể chọn **Install with
+  text console** ở menu boot khi cần.
 - Máy tự reboot và chạy CameraWall bằng root. Giữ USB cắm nguyên không gây cài
   lại khi đã có dấu nhận diện hệ thống. Với USB tạo bằng Creator 2.0.2, chọn
   **UEFI: tên USB** trong menu boot của máy. Menu CameraWall hiện 10 giây và

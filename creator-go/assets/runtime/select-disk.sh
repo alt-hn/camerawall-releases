@@ -2,6 +2,7 @@
 # Unattended Debian Installer guard. Never run on the build host.
 set -eu
 fail() {
+ trap - EXIT
  logger -t camerawall "INSTALL STOPPED: $*"
  echo "CameraWall INSTALL STOPPED: $*" > /dev/console
  # Replace the progress box with a visible terminal error; no answer can
@@ -22,6 +23,7 @@ TEMPLATES
  while :; do sleep 3600; done
 }
 . /usr/share/debconf/confmodule
+trap 'fail "Unexpected disk preparation error. See /var/log/syslog (Ctrl+Alt+F4)."' EXIT
 [ -d /sys/firmware/efi ] || fail 'UEFI boot is required.'
 command -v blockdev >/dev/null || fail 'Cannot enforce disk protection.'
 # Resolve the actual mounted installer device to its whole physical disk. Do not
@@ -139,16 +141,16 @@ for dev in $(cat /tmp/camerawall-disks) "$boot"; do
 done
 logger -t camerawall "UNATTENDED: boot=$boot target=$target sectors=$sectors; erasing smallest eligible disk; all others protected"
 echo "CameraWall: automatically installing to $target; boot disk $boot is protected." > /dev/console
-db_set partman-auto/disk "$target"
-db_set grub-installer/bootdev "$target"
 # Set destructive answers only after resolving boot media and locking other disks.
-db_set partman-partitioning/confirm_write_new_label true
-db_set partman/confirm_write_new_label true
-db_set partman/choose_partition finish
-db_set partman/confirm true
-db_set partman/confirm_nooverwrite true
-for question in partman-auto/disk grub-installer/bootdev partman-partitioning/confirm_write_new_label partman/confirm_write_new_label partman/choose_partition partman/confirm partman/confirm_nooverwrite; do
- db_fset "$question" seen true
-done
+set_answer() {
+ db_set "$1" "$2" && db_fset "$1" seen true || fail "Cannot configure installer question $1."
+}
+set_answer partman-auto/disk "$target"
+set_answer grub-installer/bootdev "$target"
+set_answer partman-partitioning/confirm_write_new_label true
+set_answer partman/choose_partition finish
+set_answer partman/confirm true
+set_answer partman/confirm_nooverwrite true
 printf '%s\n' "$target" > /tmp/camerawall-system-disk
 printf '%s\n' "$boot" > /tmp/camerawall-boot-disk
+trap - EXIT

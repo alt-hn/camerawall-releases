@@ -67,6 +67,7 @@ func runtimeFiles() (map[string][]byte, error) {
 	}
 	for dest, name := range map[string]string{
 		"etc/gtk-2.0/gtkrc":                     "gtkrc",
+		"camerawall/viewport-frame.so":          "viewport-frame.so",
 		"usr/share/graphics/logo_debian.png":    "banner.png",
 		"usr/share/graphics/logo_installer.png": "banner.png",
 	} {
