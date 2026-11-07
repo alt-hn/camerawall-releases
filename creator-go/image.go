@@ -65,6 +65,16 @@ func runtimeFiles() (map[string][]byte, error) {
 	if e != nil {
 		return nil, e
 	}
+	for dest, name := range map[string]string{
+		"etc/gtk-2.0/gtkrc":                     "gtkrc",
+		"usr/share/graphics/logo_debian.png":    "banner.png",
+		"usr/share/graphics/logo_installer.png": "banner.png",
+	} {
+		out[dest], e = bundled.ReadFile("assets/installer/" + name)
+		if e != nil {
+			return nil, e
+		}
+	}
 	key := "camerawall/camerawall-firstboot.service"
 	out[key] = bytes.ReplaceAll(out[key], []byte("Download and install pinned CameraWall release (Internet needed once)"), []byte("Install cached CameraWall offline"))
 	out[key] = bytes.ReplaceAll(out[key], []byte("Wants=network-online.target\nAfter=network-online.target"), []byte("After=network.target"))
@@ -195,9 +205,23 @@ if ! search --no-floppy --label --set=cwdata CWOFFLIN; then
  echo 'CameraWall payload missing. No disk will be erased.'
  halt
 fi
-set timeout=3
+set timeout=5
 set default=0
-menuentry 'CameraWall OFFLINE INSTALL - ERASE smallest non-boot disk' {
+if loadfont /boot/grub/font.pf2; then
+ set gfxmode=auto
+ insmod all_video
+ insmod gfxterm
+ insmod png
+ if terminal_output gfxterm; then
+  set theme=($cwdata)/grub.theme
+  export theme
+ fi
+fi
+menuentry 'Install CameraWall' {
+ linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
+ initrd /install.amd/gtk/initrd.gz ($cwdata)/cw-initrd.gz
+}
+menuentry 'Install with text console' {
  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
  initrd /install.amd/initrd.gz ($cwdata)/cw-initrd.gz
 }
@@ -211,6 +235,12 @@ func (a *App) compose(ctx context.Context, s Spec, paths map[string]string) (Ima
 		return Image{}, e
 	}
 	data := map[string][]byte{"cw-initrd.gz": initramfs(runtime)}
+	for _, name := range []string{"grub.theme", "mark.png", "selected_c.png"} {
+		data[name], e = bundled.ReadFile("assets/installer/" + name)
+		if e != nil {
+			return Image{}, e
+		}
+	}
 	var index strings.Builder
 	for i, p := range s.Packages {
 		if e = ctx.Err(); e != nil {

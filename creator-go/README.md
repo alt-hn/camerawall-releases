@@ -42,6 +42,17 @@ associated temporary VHD. Local composition validation reads every payload file
 back from the generated FAT filesystem and checks its pinned digest.
 
 Full offline installation on a physical machine remains unvalidated. The installer
-automatically erases the smallest eligible non-boot disk >=24 GiB and configures
-CameraWall root. Packages are not Developer ID/notarized or Authenticode signed;
-local ad-hoc signing is not a trusted publisher signature.
+automatically selects the smallest eligible non-boot disk ≥24 GiB. It displays
+the exact target and gives the operator 10 seconds to cancel before handing off
+to partitioning. The graphical boot entry is the default. The text-console
+entry uses the same selection and erase policy.
+
+For direct macOS distribution, build with `wails build -clean -platform darwin/universal`.
+Sign the app bundle with the Developer ID Application certificate using
+`codesign --force --options runtime --timestamp --sign "$SIGNING_IDENTITY" "$APP"`.
+Create a ZIP with `ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"` and submit
+it with `xcrun notarytool submit "$ZIP" --keychain-profile "$NOTARY_PROFILE" --wait`.
+Once Apple accepts it, run `xcrun stapler staple "$APP"`, verify with
+`xcrun stapler validate "$APP"` and `spctl --assess --type execute --verbose=4 "$APP"`,
+then create a fresh ZIP containing the stapled app. Generate the release checksum
+from that ZIP. The standard CI packages are unsigned for publisher distribution.

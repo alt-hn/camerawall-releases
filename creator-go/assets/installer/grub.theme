@@ -1,0 +1,52 @@
+title-text: ""
+desktop-color: "#edf2fb"
+message-color: "#18263c"
+message-bg-color: "#edf2fb"
+terminal-font: "Sans Regular 12"
+
++ image {
+  left = 50%-32
+  top = 12%
+  file = "mark.png"
+}
++ label {
+  left = 0
+  top = 28%
+  width = 100%
+  align = "center"
+  font = "Sans Regular 16"
+  color = "#18263c"
+  text = "Install CameraWall"
+}
++ label {
+  left = 0
+  top = 34%
+  width = 100%
+  align = "center"
+  font = "Sans Regular 12"
+  color = "#465870"
+  text = "Offline setup  |  Intel / AMD  |  UEFI"
+}
++ boot_menu {
+  left = 25%
+  width = 50%
+  top = 43%
+  height = 42%
+  item_font = "Sans Regular 12"
+  item_color = "#465870"
+  selected_item_color = "#0057b8"
+  selected_item_pixmap_style = "selected_*.png"
+  item_height = 28
+  item_padding = 10
+  item_spacing = 4
+}
++ label {
+  id = "__timeout__"
+  left = 0
+  top = 82%
+  width = 100%
+  align = "center"
+  font = "Sans Regular 12"
+  color = "#465870"
+  text = "Automatic setup starts in %d s"
+}

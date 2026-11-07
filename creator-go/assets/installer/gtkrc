@@ -1,0 +1,18 @@
+gtk-theme-name = "Clearlooks"
+gtk-font-name = "DejaVu Sans 12"
+
+style "camerawall" {
+  bg[NORMAL] = "#edf2fb"
+  bg[PRELIGHT] = "#e2ecfa"
+  bg[ACTIVE] = "#d3e4fa"
+  bg[SELECTED] = "#0864c8"
+  fg[NORMAL] = "#18263c"
+  fg[PRELIGHT] = "#18263c"
+  fg[ACTIVE] = "#18263c"
+  fg[SELECTED] = "#ffffff"
+  base[NORMAL] = "#ffffff"
+  base[SELECTED] = "#0864c8"
+  text[NORMAL] = "#18263c"
+  text[SELECTED] = "#ffffff"
+}
+class "GtkWidget" style "camerawall"

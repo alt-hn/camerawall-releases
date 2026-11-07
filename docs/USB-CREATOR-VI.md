@@ -1,4 +1,4 @@
-# CameraWall USB Creator 2.0.0 — cài offline
+# CameraWall USB Creator — cài offline
 
 **Bản đầu để thử trên máy thật: chưa kiểm chứng trọn vẹn cài offline tới khi CameraWall chạy.**
 
@@ -36,6 +36,11 @@ kiểm tra/tái sử dụng cache, nối tiếp file tải dở. Không tự b�
 - Bật máy: USB tự cài không cần bấm phím. **Tự xóa toàn bộ ổ nhỏ nhất đủ 24 GiB
   ngoài ổ đang boot**; nếu bằng dung lượng, chọn theo tên thiết bị Linux. Các ổ
   khác được khóa chỉ đọc trong phiên cài. Không có ổ hợp lệ thì dừng.
+- Từ Creator 2.0.1, bộ cài mặc định mở giao diện đồ họa và hiện tiến độ kiểm
+  SHA-256 của các tệp trên USB. Nếu kiểm tra thất bại, bộ cài báo lỗi và dừng
+  trước khi phân vùng. Cảnh báo hiện tên và
+  dung lượng ổ đích, đếm ngược **10 giây** rồi tiếp tục nếu bạn không bấm **Cancel**.
+  Có thể chọn chế độ text ở menu boot khi cần.
 - Máy tự reboot và chạy CameraWall bằng root. Giữ USB cắm nguyên không gây cài
   lại khi marker hệ điều hành đã cài tồn tại. Mất điện trước khi có marker có thể
   dẫn tới một lần cài mới; không có rollback phân vùng.
@@ -62,9 +67,7 @@ Các gói .app/.exe kèm runtime, nguồn và workflow build công khai. Xem
 native và USB vật lý. Lần flash do chủ thiết bị chạy trên DataTraveler 3.0 đã
 qua cả ghi và đọc lại checksum; cài hoàn chỉnh trên máy đích vẫn cần kiểm chứng.
 
-Bản đầu chưa có chữ ký Developer ID/notarization của Apple hoặc Authenticode của
-Windows; hệ điều hành có thể cảnh báo/chặn app tải từ Internet. Không tự sử dụng
-chứng chỉ của sản phẩm khác và không tuyên bố app đã ký phát hành.
+Gói macOS 2.0.1 trên GitHub chưa được Apple notarize. Bản Windows 2.0.0 chưa có chữ ký Authenticode.
 
 ## Theo dõi tiến độ
 
