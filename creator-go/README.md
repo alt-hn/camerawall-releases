@@ -58,4 +58,6 @@ it with `xcrun notarytool submit "$ZIP" --keychain-profile "$NOTARY_PROFILE" --w
 Once Apple accepts it, run `xcrun stapler staple "$APP"`, verify with
 `xcrun stapler validate "$APP"` and `spctl --assess --type execute --verbose=4 "$APP"`,
 then create a fresh ZIP containing the stapled app. Generate the release checksum
-from that ZIP. The standard CI packages are unsigned for publisher distribution.
+from that ZIP. Publish the macOS ZIP only after the Developer ID signature,
+stapled ticket, and Gatekeeper assessment all pass on the app extracted from
+the final archive. Standard CI packages are for build verification.

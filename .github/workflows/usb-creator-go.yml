@@ -45,5 +45,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: creator-go-${{ matrix.label }}
-          path: dist/creator-v2.0.2/*
+          path: dist/creator-v2.0.3/*
           if-no-files-found: error

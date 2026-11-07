@@ -1,3 +1,7 @@
+## USB Creator 2.0.3 — 2026-11-07
+
+- Sign and notarize the universal macOS release for Gatekeeper.
+
 ## USB Creator 2.0.2 — 2026-11-07
 
 - Show the USB boot menu for 10 seconds when an existing CameraWall installation

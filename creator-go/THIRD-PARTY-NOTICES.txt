@@ -1,4 +1,4 @@
-CameraWall USB Creator 2.0.2 — third-party Go modules
+CameraWall USB Creator 2.0.3 — third-party Go modules
 
 Built with Go and Wails. macOS WebKit / Windows WebView2 are system components.
 No Python, PyInstaller, pycdlib or pyfatfs runtime is bundled in this Creator.
@@ -645,7 +645,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-========== github.com/aymanbagabas/go-osc52/v2 v2.0.2 ==========
+========== github.com/aymanbagabas/go-osc52/v2 v2.0.3 ==========
 MIT License
 
 Copyright (c) 2026 Alita Software
