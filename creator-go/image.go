@@ -195,36 +195,46 @@ func debControl(filename string) (string, error) {
 const bootMenu = `insmod part_gpt
 insmod fat
 insmod ext2
-if search --no-floppy --file --set=cwroot /camerawall-installed.marker; then
- set root=$cwroot
- set prefix=($cwroot)/boot/grub
- configfile ($cwroot)/boot/grub/grub.cfg
- halt
-fi
-if ! search --no-floppy --label --set=cwdata CWOFFLIN; then
- echo 'CameraWall payload missing. No disk will be erased.'
- halt
-fi
+set default=install
 set timeout=5
-set default=0
-if loadfont /boot/grub/font.pf2; then
- set gfxmode=auto
- insmod all_video
- insmod gfxterm
- insmod png
- if terminal_output gfxterm; then
-  set theme=($cwdata)/grub.theme
-  export theme
+set timeout_style=menu
+if search --no-floppy --file --set=cwroot /camerawall-installed.marker; then
+ set default=installed
+ set timeout=10
+ menuentry 'Boot installed CameraWall' --id installed {
+  set root=$cwroot
+  set prefix=($cwroot)/boot/grub
+  set cw_installer_boot_arg=camerawall.installer_boot=1
+  export cw_installer_boot_arg
+  configfile ($cwroot)/boot/grub/grub.cfg
+  halt
+ }
+fi
+if search --no-floppy --label --set=cwdata CWOFFLIN; then
+ if loadfont /boot/grub/font.pf2; then
+  set gfxmode=auto
+  insmod all_video
+  insmod gfxterm
+  insmod png
+  if terminal_output gfxterm; then
+   set theme=($cwdata)/grub.theme
+   export theme
+  fi
+ fi
+ menuentry 'Install / reinstall CameraWall (erases target disk)' --id install {
+  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
+  initrd /install.amd/gtk/initrd.gz ($cwdata)/cw-initrd.gz
+ }
+ menuentry 'Install with text console' {
+  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
+  initrd /install.amd/initrd.gz ($cwdata)/cw-initrd.gz
+ }
+else
+ echo 'CameraWall payload missing. Installation is unavailable.'
+ if [ "$default" = install ]; then
+  halt
  fi
 fi
-menuentry 'Install CameraWall' {
- linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
- initrd /install.amd/gtk/initrd.gz ($cwdata)/cw-initrd.gz
-}
-menuentry 'Install with text console' {
- linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
- initrd /install.amd/initrd.gz ($cwdata)/cw-initrd.gz
-}
 menuentry 'Power off' { halt }
 `
 
@@ -234,6 +244,7 @@ func (a *App) compose(ctx context.Context, s Spec, paths map[string]string) (Ima
 	if e != nil {
 		return Image{}, e
 	}
+	runtime["camerawall/release.env"] = s.releaseEnv()
 	data := map[string][]byte{"cw-initrd.gz": initramfs(runtime)}
 	for _, name := range []string{"grub.theme", "mark.png", "selected_c.png"} {
 		data[name], e = bundled.ReadFile("assets/installer/" + name)
@@ -261,7 +272,7 @@ func (a *App) compose(ctx context.Context, s Spec, paths map[string]string) (Ima
 		release += fmt.Sprintf(" %s %d %s\n", shaBytes(b), len(b), name)
 	}
 	data["repo/Release"] = []byte(release)
-	sources := map[string]Asset{"app.tar.gz": s.Application}
+	sources := map[string]Asset{"app.tar.gz": s.Application, "display.tar.gz": s.Display}
 	for _, p := range s.Analytics {
 		sources["analytics/"+p.Name] = p
 	}

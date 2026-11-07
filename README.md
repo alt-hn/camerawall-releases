@@ -2,15 +2,17 @@
 
 Self-hosted Linux NVR for RTSP cameras. This repository distributes evaluation binaries, installation resources, checksums, release notes and third-party license notices. CameraWall application source is maintained separately in a private repository.
 
-**Application release pinned by the USB installer: [v0.1.0-alpha.40](https://github.com/alt-hn/camerawall-releases/releases/tag/v0.1.0-alpha.40) — public application release.** Read the attached `VALIDATION.md` for actual test coverage and limitations. Short synthetic tests do not establish sustained full-resolution camera capacity. Proxmox LXC and OS versions beyond the tested Debian environment remain unverified.
+**[Latest public CameraWall release](https://github.com/alt-hn/camerawall-releases/releases/latest).** Read the attached `VALIDATION.md` for actual test coverage and limitations. Short synthetic tests do not establish sustained full-resolution camera capacity. Proxmox LXC and OS versions beyond the tested Debian environment remain unverified.
 
 ## USB Creator — offline installation (macOS / Windows)
 
-Download [**CameraWall USB Creator 2.0.0**](https://github.com/alt-hn/camerawall-releases/releases/tag/creator-v2.0.0) to select a USB, download verified upstream components,
+Download [**CameraWall USB Creator 2.0.2**](https://github.com/alt-hn/camerawall-releases/releases/tag/creator-v2.0.2) to select a USB, download verified upstream components,
 create the bootable media locally, flash it and verify readback. Version 2 is compiled
 Go + Wails, with per-stage/per-file progress, transfer speed and action logs. No custom CameraWall
-ISO is required. The USB installs Debian, CameraWall alpha.40 and AI dependencies
-without a network connection by design; full offline installation still awaits physical validation. See [Vietnamese guide](docs/USB-CREATOR-VI.md),
+ISO is required. Creator 2.0.2 checks GitHub for the latest public
+CameraWall release at USB creation and reuses only checksum-matching packages.
+The resulting USB installs Debian, CameraWall, the matching HDMI renderer and
+AI dependencies without a network connection; full offline installation still awaits physical validation. See [Vietnamese guide](docs/USB-CREATOR-VI.md),
 [validation](docs/USB-CREATOR-2-VALIDATION.md) and [source/build](creator-go/README.md).
 **The destination machine automatically erases its smallest eligible non-boot disk
 (minimum 24 GiB).** The backend runs as root; later application updates use its UI.

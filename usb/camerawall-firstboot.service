@@ -1,5 +1,5 @@
 [Unit]
-Description=Download and install pinned CameraWall release (Internet needed once)
+Description=Download and install latest CameraWall release (Internet needed once)
 Wants=network-online.target
 After=network-online.target
 ConditionPathExists=!/var/lib/camerawall-usb/complete

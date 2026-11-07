@@ -12,7 +12,7 @@ trap 'echo "CameraWall offline setup failed. Inspect journalctl -u camerawall-fi
 [[ $(uname -m) == x86_64 && $(id -u) == 0 ]]
 cd "$state"
 printf '%s  app.tar.gz\n' "$CAMERAWALL_SHA256" | sha256sum -c -
-python3 - "$CAMERAWALL_VERSION" "$CAMERAWALL_SOURCE_COMMIT" <<'PY'
+python3 - "$CAMERAWALL_VERSION" <<'PY'
 import pathlib,sys,tarfile
 root='camerawall_'+sys.argv[1]+'_linux_amd64'
 with tarfile.open('app.tar.gz') as t:
@@ -21,7 +21,7 @@ with tarfile.open('app.tar.gz') as t:
   assert not p.is_absolute() and '..' not in p.parts and p.parts[0]==root
   assert m.isfile() or m.isdir()
  info=t.extractfile(root+'/BUILD-INFO.txt').read().decode()
- assert 'source_commit='+sys.argv[2]+'\n' in info
+ assert 'version='+sys.argv[1]+'\n' in info
  t.extractall('unpacked')
 PY
 # The Creator copied every pinned AI asset to this cache; do not download a missing
@@ -38,11 +38,16 @@ python3 "$base/provision-analytics.py"
 install -d -m 0755 /etc/systemd/system/camerawall.service.d /var/lib/camerawall
 install -m 0644 "$base/root-service.conf" /etc/systemd/system/camerawall.service.d/90-appliance-root.conf
 if [[ ! -e /var/lib/camerawall/update-settings.json ]]; then printf '{"mode":"off","auto_download":false}\n' > /var/lib/camerawall/update-settings.json; fi
-bash "unpacked/camerawall_${CAMERAWALL_VERSION}_linux_amd64/install.sh"
+bundle="unpacked/camerawall_${CAMERAWALL_VERSION}_linux_amd64"
+bash "$base/install-host-runtime.sh" "$bundle"
+bash "$bundle/install.sh"
 systemctl enable --now camerawall-auto-download.timer
 [[ $(systemctl show camerawall.service -p User --value) == root ]]
 for attempt in $(seq 1 120); do
- if curl --noproxy '*' -fsS --max-time 5 http://127.0.0.1/ >/dev/null && systemctl is-active --quiet camerawall.service camerawall-media.service; then
+ if curl --noproxy '*' -fsS --max-time 5 http://127.0.0.1/ >/dev/null &&
+    systemctl is-active --quiet camerawall.service camerawall-media.service camerawall-host.service &&
+    curl --noproxy '*' -fsS --max-time 10 --unix-socket /run/camerawall-host/control.sock http://host/status >/dev/null; then
+  bash "$base/install-display-runtime.sh" display.tar.gz "$CAMERAWALL_VERSION" "$CAMERAWALL_DISPLAY_SHA256"
   printf 'version=%s\nmode=offline\ncompleted=%s\n' "$CAMERAWALL_VERSION" "$(date -u +%FT%TZ)" > "$state/complete"
   echo 'READY: CameraWall offline installation complete.'
   exit 0

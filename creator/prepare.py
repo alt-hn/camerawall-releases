@@ -7,6 +7,7 @@ import concurrent.futures
 import gzip
 import hashlib
 import io
+import importlib.util
 import json
 import math
 import os
@@ -23,7 +24,7 @@ from core import download, sha256
 
 SECTOR = 512
 MIB = 1024 * 1024
-RUNTIME = ('select-disk.sh', 'root-service.conf', 'release.env', 'provision-analytics.py', 'analytics-downloads.json', 'camerawall-console.service', 'console-ready.sh', 'camerawall-firstboot.service')
+RUNTIME = ('select-disk.sh', 'root-service.conf', 'install-display-runtime.sh', 'install-host-runtime.sh', 'provision-analytics.py', 'analytics-downloads.json', 'camerawall-console.service', 'console-ready.sh', 'camerawall-firstboot.service')
 
 
 def runtime_files(root):
@@ -36,7 +37,7 @@ def runtime_files(root):
         files['camerawall/' + name] = (root / 'offline' / name).read_bytes()
     files['usr/lib/apt-setup/generators/02camerawall'] = (root / 'offline/apt-generator.sh').read_bytes()
     files['preseed.cfg'] = (root / 'offline/preseed.cfg').read_bytes()
-    files['camerawall/camerawall-firstboot.service'] = files['camerawall/camerawall-firstboot.service'].replace(b'Download and install pinned CameraWall release (Internet needed once)', b'Install cached CameraWall offline').replace(b'Wants=network-online.target\nAfter=network-online.target', b'After=network.target')
+    files['camerawall/camerawall-firstboot.service'] = files['camerawall/camerawall-firstboot.service'].replace(b'Download and install latest CameraWall release (Internet needed once)', b'Install cached CameraWall offline').replace(b'Wants=network-online.target\nAfter=network-online.target', b'After=network.target')
     files['camerawall/console-ready.sh'] = files['camerawall/console-ready.sh'].replace(b'CameraWall READY: http://%s', b'CameraWall READY (connect Ethernet for LAN access): http://%s')
     return files
 
@@ -161,22 +162,32 @@ def gpt_append(image, start, length, total):
 MENU = b'''insmod part_gpt
 insmod fat
 insmod ext2
-if search --no-floppy --file --set=cwroot /camerawall-installed.marker; then
- set root=$cwroot
- set prefix=($cwroot)/boot/grub
- configfile ($cwroot)/boot/grub/grub.cfg
- halt
-fi
-if ! search --no-floppy --label --set=cwdata CWOFFLIN; then
- echo 'CameraWall payload missing. No disk will be erased.'
- halt
-fi
+set default=install
 set timeout=3
-set default=0
-menuentry 'CameraWall OFFLINE INSTALL - ERASE smallest non-boot disk' {
- linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
- initrd /install.amd/initrd.gz ($cwdata)/cw-initrd.gz
-}
+set timeout_style=menu
+if search --no-floppy --file --set=cwroot /camerawall-installed.marker; then
+ set default=installed
+ set timeout=10
+ menuentry 'Boot installed CameraWall' --id installed {
+  set root=$cwroot
+  set prefix=($cwroot)/boot/grub
+  set cw_installer_boot_arg=camerawall.installer_boot=1
+  export cw_installer_boot_arg
+  configfile ($cwroot)/boot/grub/grub.cfg
+  halt
+ }
+fi
+if search --no-floppy --label --set=cwdata CWOFFLIN; then
+ menuentry 'CameraWall OFFLINE INSTALL - ERASE smallest non-boot disk' --id install {
+  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
+  initrd /install.amd/initrd.gz ($cwdata)/cw-initrd.gz
+ }
+else
+ echo 'CameraWall payload missing. Installation is unavailable.'
+ if [ "$default" = install ]; then
+  halt
+ fi
+fi
 menuentry 'Power off' { halt }
 '''
 
@@ -185,7 +196,14 @@ def prepare(root, cache, progress=lambda *_: None):
     root, cache = Path(root), Path(cache)
     spec = json.loads((root / 'offline/sources.json').read_text())
     packages = json.loads((root / 'offline/debian-packages.json').read_text())
-    assets = list({item['sha256']: item for item in [spec['debian'], spec['application'], *spec['analytics'], *packages]}.values())
+    runtime = root / 'usb-runtime'
+    if not runtime.exists():
+        runtime = root.parent / 'usb'
+    resolver = importlib.util.spec_from_file_location('latest_release', runtime / 'latest-release.py')
+    module = importlib.util.module_from_spec(resolver)
+    resolver.loader.exec_module(module)
+    version, app, display = module.latest_release()
+    assets = list({item['sha256']: item for item in [spec['debian'], app, display, *spec['analytics'], *packages]}.values())
     cache.mkdir(parents=True, exist_ok=True)
     paths = {}
     total = sum(item['size'] for item in assets)
@@ -199,6 +217,8 @@ def prepare(root, cache, progress=lambda *_: None):
             progress('download', complete, total)
     progress('prepare', 0, 1)
     files = runtime_files(root)
+    files['camerawall/release.env'] = (f"CAMERAWALL_VERSION={version}\n"
+        f"CAMERAWALL_SHA256={app['sha256']}\nCAMERAWALL_DISPLAY_SHA256={display['sha256']}\n").encode()
     data_files = {'cw-initrd.gz': initramfs(files), 'repo/Packages': package_index(packages, paths)}
     data_files['repo/Packages.gz'] = gzip.compress(data_files['repo/Packages'], mtime=0)
     release = 'Origin: CameraWall offline cache\nLabel: Verified Debian packages\nSuite: offline\nDate: Fri, 06 Nov 2026 00:00:00 UTC\nArchitectures: amd64 all\nSHA256:\n'
@@ -206,7 +226,7 @@ def prepare(root, cache, progress=lambda *_: None):
         payload = data_files['repo/' + name]
         release += f' {hashlib.sha256(payload).hexdigest()} {len(payload)} {name}\n'
     data_files['repo/Release'] = release.encode()
-    source_files = {'app.tar.gz': paths[spec['application']['sha256']]}
+    source_files = {'app.tar.gz': paths[app['sha256']], 'display.tar.gz': paths[display['sha256']]}
     source_files.update({'analytics/' + i['name']: paths[i['sha256']] for i in spec['analytics']})
     source_files.update({'repo/pool/' + i['name']: paths[i['sha256']] for i in packages})
     sums = []

@@ -25,8 +25,9 @@ so leaving USB inserted does not reformat the system. A marker is written only
 once GRUB and firstboot services exist. A power cut before that point may lead
 to another install attempt on the next boot; it is not a transactional rollback.
 
-Pinned CameraWall alpha.40 and AI components are downloaded during firstboot,
-with checksums, retries and resumable cache. They run locally after completion.
+Firstboot resolves the latest public CameraWall release, then downloads or
+reuses verified cached backend and matching HDMI renderer packages. Debian
+runtime dependencies and AI components are installed during firstboot. They run locally after completion.
 Application source remains private and is not rebuilt or republished by this USB.
 
 See `../docs/USB-INSTALL-VI.md`, `USB-VALIDATION.md` and `USB-RELEASE-NOTES.md`.

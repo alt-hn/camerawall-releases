@@ -28,8 +28,8 @@ terminal-font: "Sans Regular 12"
   text = "Offline setup  |  Intel / AMD  |  UEFI"
 }
 + boot_menu {
-  left = 25%
-  width = 50%
+  left = 12%
+  width = 76%
   top = 43%
   height = 42%
   item_font = "Sans Regular 12"
@@ -48,5 +48,5 @@ terminal-font: "Sans Regular 12"
   align = "center"
   font = "Sans Regular 12"
   color = "#465870"
-  text = "Automatic setup starts in %d s"
+  text = "Selected option starts in %d s"
 }

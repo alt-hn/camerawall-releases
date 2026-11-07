@@ -1,6 +1,6 @@
 # USB tự cài CameraWall — usb-v0.3.0
 
-Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứa Debian 12.15 netinst và firmware chính thức, không chứa CameraWall hoặc toàn bộ hệ điều hành đã cài. Debian tải gói từ `deb.debian.org`/`security.debian.org`; CameraWall tải **v0.1.0-alpha.40** từ GitHub Releases. OpenCV/NumPy tải từ PyPI, ba model YuNet/SFace/YOLOX từ commit OpenCV Zoo đã ghim; mọi file đều kiểm SHA-256 trước khi dùng. Không cần dịch vụ cloud riêng. Sau khi hoàn tất, CameraWall hoạt động trong LAN không cần Internet; cập nhật phần mềm vẫn cần Internet.
+Bản thử nghiệm dành cho thin client **x86-64, UEFI, Ethernet**. USB chứa Debian 12.15 netinst và firmware chính thức, không chứa CameraWall hoặc toàn bộ hệ điều hành đã cài. Debian tải gói từ `deb.debian.org`/`security.debian.org`; CameraWall tải **bản công khai mới nhất** từ GitHub Releases. OpenCV/NumPy tải từ PyPI, ba model YuNet/SFace/YOLOX từ commit OpenCV Zoo đã ghim; mọi file đều kiểm SHA-256 trước khi dùng. Không cần dịch vụ cloud riêng. Sau khi hoàn tất, CameraWall hoạt động trong LAN không cần Internet; cập nhật phần mềm vẫn cần Internet.
 
 **USB này tự xóa ổ nhỏ nhất đủ 24 GiB ngoài ổ đang boot, không hỏi xác nhận. Chỉ boot trên máy bạn chủ đích cài lại.**
 
@@ -59,13 +59,13 @@ Không có lệnh `dd` với tên ổ mặc định để tránh ghi nhầm ổ 
 1. Flash ISO vào USB. Đặt firmware thin client boot USB trước, UEFI, tắt Secure Boot. Đây là thiết lập firmware trước khi dùng; USB không tự thay đổi thứ tự boot của hãng.
 2. Cắm USB và Ethernet có DHCP/Internet, bật máy. Sau 3 giây menu tự vào cài đặt. **Mọi dữ liệu trên ổ đích được chọn tự động sẽ mất.** Các ổ khác bị khóa chỉ đọc trong phiên cài.
 3. Máy tự cài Debian, tạo mật khẩu Linux riêng, cài GRUB rồi reboot. Có thể để nguyên USB: nếu tìm thấy marker của CameraWall đã cài, USB chuyển sang hệ điều hành đó, không cài/xóa lại.
-4. Máy tự tải CameraWall alpha.40, các dependency AI và model, kiểm checksum rồi chạy dịch vụ. Đợi màn hình **CameraWall READY** hiển thị địa chỉ IP và mật khẩu ban đầu. Truy cập `http://IP` từ LAN bằng mật khẩu web được hiển thị. Mật khẩu Linux `cwadmin` khác mật khẩu web; không có mật khẩu chung trong ISO.
+4. Máy tự tải CameraWall mới nhất, renderer HDMI cùng phiên bản, các dependency AI và model, kiểm checksum rồi chạy dịch vụ. Đợi màn hình **CameraWall READY** hiển thị địa chỉ IP và mật khẩu ban đầu. Truy cập `http://IP` từ LAN bằng mật khẩu web được hiển thị. Mật khẩu Linux `cwadmin` khác mật khẩu web; không có mật khẩu chung trong ISO.
 
 Mật khẩu ban đầu được hiển thị **chỉ trên màn hình gắn tại máy**, không ghi journal hoặc gửi mạng. Sau khi ghi lại và đổi mật khẩu, có thể tắt việc hiển thị bằng `sudo systemctl disable camerawall-console.service`. File lưu ban đầu chỉ root đọc được; sau khi đổi mật khẩu, những giá trị này không tự cập nhật.
 
 Không có ổ phù hợp thì máy dừng an toàn; không chọn ổ nhỏ hơn 24 GiB hoặc ổ đang boot. Ổ chỉ đọc, đang mount hoặc có LVM/RAID đang hoạt động không phải đích được hỗ trợ. Không hỗ trợ Ventoy/loop/network boot: ghi ISO trực tiếp theo hướng dẫn flash. Nếu USB không xác định chắc chắn được ổ đang boot, nó dừng trước phân vùng.
 
-Marker `/camerawall-installed.marker` cho phép giữ USB cắm nguyên sau cài, kể cả khi firstboot chưa tải xong app. Nếu đã có một hệ thống CameraWall mang marker trên các ổ gắn kèm, USB ưu tiên boot hệ thống đó. Không tự tái cài hoặc tự chọn ổ khác khi boot hệ thống đã cài bị lỗi. Muốn cài lại phải xử lý có chủ đích hệ thống/marker cũ; không có tái cài phá dữ liệu tự động mỗi lần bật nguồn.
+Marker `/camerawall-installed.marker` cho phép giữ USB cắm nguyên sau cài, kể cả khi firstboot chưa tải xong app. Nếu đã có một hệ thống CameraWall mang marker trên các ổ gắn kèm, USB ưu tiên boot hệ thống đó. Không tự tái cài hoặc tự chọn ổ khác khi boot hệ thống đã cài bị lỗi. Với ISO build từ nguồn đã sửa, menu hiện 10 giây khi tìm thấy marker. Chọn mục cài đặt nếu muốn cài lại và xóa ổ đích.
 
 Bản này vẫn là máy chủ headless, không cài native HDMI/desktop. Runtime AI CPU và model được provision trước READY; recording mặc định ở `/var/lib/camerawall/recordings` trên ổ system. Các ổ còn lại không được format/mount làm recording.
 
@@ -76,7 +76,7 @@ sudo systemctl status camerawall-firstboot
 sudo journalctl -u camerawall-firstboot -b
 sudo cat /var/lib/camerawall-usb/complete
 hostname -I
-sudo cat /etc/camerawall/initial-admin-password
+sudo /opt/camerawall/bin/camerawall --show-initial-password
 sudo cat /var/lib/camerawall-usb/linux-password
 ```
 
@@ -104,7 +104,7 @@ Không cần Internet cho xem/ghi camera LAN sau khi đã READY. Chế độ c�
 
 Xem `USB-VALIDATION.md`, `BUILD-INFO.json`, `DEBIAN-SIGNATURE.txt`, `BOOT-LAYOUT.txt` và `SHA256SUMS` đính kèm release. ISO này là bản tùy biến CameraWall, không phải ISO nguyên gốc do Debian phát hành.
 
-Nguồn Debian: [Debian 12 installer](https://www.debian.org/releases/bookworm/debian-installer/), [ISO 12.15](https://cdimage.debian.org/cdimage/archive/12.15.0/amd64/iso-cd/), [kiểm chữ ký Debian](https://www.debian.org/CD/verify). Build xác minh chữ ký checksum bằng Debian CD key fingerprint `DF9B9C49EAA9298432589D76DA87E80D6294BE9B`, rồi kiểm SHA-256 ISO. Debian Installer/APT xác minh chữ ký kho và hash gói; không tắt xác minh APT dù mirror dùng HTTP. CameraWall dùng HTTPS và SHA-256 ghim trong ISO, kiểm thêm source commit trong archive; đây không phải chữ ký phát hành độc lập của CameraWall.
+Nguồn Debian: [Debian 12 installer](https://www.debian.org/releases/bookworm/debian-installer/), [ISO 12.15](https://cdimage.debian.org/cdimage/archive/12.15.0/amd64/iso-cd/), [kiểm chữ ký Debian](https://www.debian.org/CD/verify). Build xác minh chữ ký checksum bằng Debian CD key fingerprint `DF9B9C49EAA9298432589D76DA87E80D6294BE9B`, rồi kiểm SHA-256 ISO. Debian Installer/APT xác minh chữ ký kho và hash gói; không tắt xác minh APT dù mirror dùng HTTP. CameraWall dùng HTTPS và SHA-256 từ API GitHub Releases, kiểm thêm phiên bản trong archive; đây không phải chữ ký phát hành độc lập của CameraWall.
 
 Debian/firmware giữ giấy phép upstream; copyright và license của các gói được cài nằm ở `/usr/share/doc/*/copyright`. Mã nguồn Debian tương ứng có tại [Debian package pool](https://deb.debian.org/debian/pool/) và [Debian snapshot](https://snapshot.debian.org/). CameraWall giữ license/third-party notices trong archive và `/opt/camerawall/`. Scripts của bộ USB nằm công khai trong repo release dưới giấy phép `usb/LICENSE`.
 

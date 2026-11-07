@@ -10,4 +10,5 @@ apt-get -o Dir::State::status=/dev/null -o Debug::NoLocking=true \
  -o Acquire::ForceHash=SHA256 --print-uris --yes --download-only --reinstall \
  --no-install-recommends install curl ca-certificates ffmpeg python3 sudo \
  python3-venv libglib2.0-0 libgomp1 linux-image-amd64 grub-efi-amd64-signed \
- shim-signed systemd-sysv initramfs-tools network-manager netbase iproute2 qemu-guest-agent
+ shim-signed systemd-sysv initramfs-tools network-manager netbase iproute2 qemu-guest-agent \
+ libqt6gui6 libqt6opengl6 libqt6network6 qt6-qpa-plugins qt6-wayland gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav weston libgl1-mesa-dri fonts-dejavu-core

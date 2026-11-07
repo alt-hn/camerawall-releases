@@ -12,7 +12,7 @@ test('OS locale fallback and saved override',()=>{
  assert.equal(vm.runInContext('language',context('vi-VN','invalid')),'vi');
 });
 test('dynamic progress and errors retain values',()=>{
- assert.equal(t('Tải 375 thành phần từ nguồn đã ghim'),'Download 375 components from pinned sources');
+ assert.equal(t('Tải 375 thành phần đã xác định'),'Download 375 selected components');
  assert.equal(t('Còn khoảng 2 phút 12 giây'),'About 2 min 12 sec');
  assert.equal(t('Chưa hoàn tất — Ghi USB'),'Incomplete — Write USB');
  assert.equal(t('Lập kho gói: package_1.0.deb'),'Indexing packages: package_1.0.deb');

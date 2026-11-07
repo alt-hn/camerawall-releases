@@ -143,10 +143,11 @@ db_set partman-auto/disk "$target"
 db_set grub-installer/bootdev "$target"
 # Set destructive answers only after resolving boot media and locking other disks.
 db_set partman-partitioning/confirm_write_new_label true
+db_set partman/confirm_write_new_label true
 db_set partman/choose_partition finish
 db_set partman/confirm true
 db_set partman/confirm_nooverwrite true
-for question in partman-auto/disk grub-installer/bootdev partman-partitioning/confirm_write_new_label partman/choose_partition partman/confirm partman/confirm_nooverwrite; do
+for question in partman-auto/disk grub-installer/bootdev partman-partitioning/confirm_write_new_label partman/confirm_write_new_label partman/choose_partition partman/confirm partman/confirm_nooverwrite; do
  db_fset "$question" seen true
 done
 printf '%s\n' "$target" > /tmp/camerawall-system-disk

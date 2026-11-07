@@ -1,3 +1,13 @@
+## USB Creator 2.0.2 — 2026-11-07
+
+- Show the USB boot menu for 10 seconds when an existing CameraWall installation
+  is detected. The installed system remains the default and reinstall is an
+  explicit choice.
+- Resolve the latest public CameraWall release before checking the download
+  cache. Verify the matching backend and HDMI renderer before preparing the USB.
+- Include the native HDMI runtime and install the appliance helper for recording
+  HDD and network administration.
+
 ## USB Creator 2.0.0 — 2026-11-07
 
 - English/Vietnamese UI, OS-language default and persistent manual selection.

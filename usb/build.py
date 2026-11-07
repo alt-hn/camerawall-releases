@@ -53,7 +53,7 @@ with tempfile.TemporaryDirectory(prefix='cw-iso-') as stage:
     payload = stage / 'camerawall'
     payload.mkdir()
     names = ('preseed.cfg', 'select-disk.sh', 'late-install.sh', 'bootstrap.sh', 'root-service.conf', 'console-ready.sh', 'camerawall-console.service',
-             'provision-analytics.py', 'analytics-downloads.json', 'release.env', 'camerawall-firstboot.service', 'LICENSE')
+             'provision-analytics.py', 'analytics-downloads.json', 'latest-release.py', 'install-display-runtime.sh', 'install-host-runtime.sh', 'camerawall-firstboot.service', 'LICENSE')
     for name in names:
         shutil.copy2(ROOT/'usb'/name, payload/name)
     shutil.copy2(ROOT/'docs/USB-INSTALL-VI.md', payload/'USB-INSTALL-VI.md')
@@ -84,7 +84,7 @@ metadata = dict(installer_version=VERSION, installer_source_commit=run('git','re
                 debian_version=DEBIAN, debian_url=BASE+'/'+ISO, debian_sha256=expected[0],
                 debian_signer=FINGERPRINT, iso_sha256=sha(output),
                 analytics_downloads=json.loads((ROOT/'usb/analytics-downloads.json').read_text()),
-                camerawall=dict(line.split('=',1) for line in (ROOT/'usb/release.env').read_text().splitlines()))
+                camerawall='Latest public release resolved at first boot')
 (OUT/'BUILD-INFO.json').write_text(json.dumps(metadata, indent=2)+'\n')
 (OUT/'SHA256SUMS').write_text(f'{sha(output)}  {output.name}\n')
 print(json.dumps(metadata,indent=2))

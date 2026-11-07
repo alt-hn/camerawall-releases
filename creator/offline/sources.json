@@ -5,12 +5,6 @@
     "sha256": "cd4462c06aa8892e692c0c4b9c17802f38c8ab8690e85cbfb5ccaa5956e9af17",
     "name": "debian-12.15.0-amd64-netinst.iso"
   },
-  "application": {
-    "url": "https://github.com/alt-hn/camerawall-releases/releases/download/v0.1.0-alpha.40/camerawall_v0.1.0-alpha.40_linux_amd64.tar.gz",
-    "size": 19515561,
-    "sha256": "bec332ff9313035ced4a5a0883bd410ba17321a85cd6824b85acc99854ad1753",
-    "name": "camerawall_v0.1.0-alpha.40_linux_amd64.tar.gz"
-  },
   "analytics": [
     {
       "url": "https://files.pythonhosted.org/packages/89/53/e19c21e0c4eb1275c3e2c97b081103b6dfb3938172264d283a519bf728b9/opencv_python_headless-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",

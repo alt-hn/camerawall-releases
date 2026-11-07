@@ -76,6 +76,7 @@ const english = {
   "USB đã sẵn sàng. Toàn bộ dữ liệu ghi đã đọc lại đúng checksum.": "USB is ready. All written data passed checksum readback.",
   "Đang ghi/kiểm tra USB; hãy chờ hoàn tất": "Writing/verifying USB; wait until complete",
   "Đang dừng; giữ các file tải dở để thử lại": "Stopping; keeping partial downloads for retry",
+  "Kiểm tra bản CameraWall mới nhất trên GitHub": "Checking GitHub for the latest CameraWall release",
   "Kiểm tra SHA-256 toàn bộ dữ liệu": "Verifying SHA-256 of all data",
   "Kiểm tra ": "Checking ",
   "Checksum không khớp; đã bỏ file lỗi": "Checksum mismatch; removed the invalid file",
@@ -150,7 +151,7 @@ const escaped = Object.keys(english).sort((a,b)=>b.length-a.length).map(s=>s.rep
 const translationPattern = new RegExp(escaped.join('|'),'g');
 function translate(text,lang=language) {
   if(lang==='vi') return text;
-  return text.replace(/Tải (\d+) thành phần từ nguồn đã ghim/g,'Download $1 components from pinned sources')
+  return text.replace(/Tải (\d+) thành phần đã xác định/g,'Download $1 selected components')
     .replace(/tải ([^\n]+?): /g,'download $1: ')
     .replace(translationPattern, match=>english[match]);
 }

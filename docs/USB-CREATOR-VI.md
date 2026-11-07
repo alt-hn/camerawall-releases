@@ -3,8 +3,11 @@
 **Bản đầu để thử trên máy thật: chưa kiểm chứng trọn vẹn cài offline tới khi CameraWall chạy.**
 
 **Chỉ tải app Creator cho macOS hoặc Windows. Không cần tải ISO CameraWall.**
-App tự lấy Debian chính thức, gói phụ thuộc, CameraWall alpha.40 và AI từ các
-nguồn đã ghim SHA-256, rồi tạo USB bootable ngay trên máy bạn.
+App kiểm tra bản CameraWall công khai mới nhất trên GitHub mỗi lần tạo USB,
+lấy backend và renderer HDMI cùng phiên bản, rồi kiểm SHA-256. Cache chỉ được
+dùng khi khớp gói đã chọn. Nếu không xác định được bản mới nhất, app dừng.
+USB đã tạo có thể cài offline. Sau khi cài, vào **Settings → Local display**
+và chọn **Hybrid** hoặc **Display** để bật màn hình HDMI.
 
 ## Tạo USB
 
@@ -42,10 +45,18 @@ kiểm tra/tái sử dụng cache, nối tiếp file tải dở. Không tự b�
   dung lượng ổ đích, đếm ngược **10 giây** rồi tiếp tục nếu bạn không bấm **Cancel**.
   Có thể chọn chế độ text ở menu boot khi cần.
 - Máy tự reboot và chạy CameraWall bằng root. Giữ USB cắm nguyên không gây cài
-  lại khi marker hệ điều hành đã cài tồn tại. Mất điện trước khi có marker có thể
-  dẫn tới một lần cài mới; không có rollback phân vùng.
+  lại khi đã có dấu nhận diện hệ thống. Với USB tạo bằng Creator 2.0.2, chọn
+  **UEFI: tên USB** trong menu boot của máy. Menu CameraWall hiện 10 giây và
+  mặc định chọn **Boot installed CameraWall**. Chọn **Install / reinstall
+  CameraWall (erases target disk)** nếu muốn cài lại. Mất điện trước khi có
+  dấu nhận diện có thể dẫn tới một lần cài mới.
 - Màn hình hiện READY và mật khẩu. Cắm Ethernet có DHCP để nhận IP và dùng UI
   CameraWall từ một máy khác trong LAN. Internet chỉ cần khi kiểm tra/tải update.
+- Khi màn hình hiện `Boot check: pending`, tắt máy, rút USB cài rồi bật lại.
+  Màn hình hiện `Boot check: PASS` khi Debian đã khởi động qua UEFI với phân
+  vùng hệ thống và EFI trên cùng ổ, không qua GRUB của USB cài. Nếu firmware
+  báo không tìm thấy hệ điều hành, cắm lại USB để vào bản đã cài và kiểm tra
+  thứ tự boot UEFI.
 
 ## Cập nhật về sau
 
@@ -55,8 +66,7 @@ Profile backend root nằm riêng trong systemd drop-in, giữ qua cập nhật 
 Tính năng quản trị mới phải được triển khai trong CameraWall thì mới có UI dùng;
 root không tự tạo giao diện cho mọi lệnh hệ điều hành. Media service vẫn có user riêng.
 
-Creator ghim bộ thành phần đã kiểm chứng; nếu upstream thay/xóa gói ghim, cần bản
-Creator cập nhật. Không âm thầm đổi sang gói khác. **Chế độ cài online riêng để
+Các gói Debian và AI vẫn được ghim SHA-256. **Chế độ cài online riêng để
 bổ sung sau**; bản Creator này mặc định offline và không tự fallback sang mạng.
 Các ISO `usb-v*` cũ là luồng Internet installer riêng, không phải đầu vào Creator.
 
@@ -81,3 +91,21 @@ ghi/đọc lại USB. Windows xin quyền sau khi chuẩn bị, ngay trước kh
 
 App tự chọn VI khi ngôn ngữ chính của máy là tiếng Việt, EN cho các ngôn ngữ khác.
 Đổi EN/VI ở góc trên; lựa chọn được lưu cho lần mở sau. Không đổi ngôn ngữ bộ cài Debian.
+
+## Bổ sung HDD helper cho máy đã cài
+
+Không cần cài lại Debian. Dùng gói backend Linux amd64 có cùng phiên bản với
+kết quả của `/opt/camerawall/bin/camerawall --version`. Kiểm SHA-256 từ GitHub
+Releases, giải nén gói và chép script `usb/install-host-runtime.sh` vào máy.
+Trên máy CameraWall, chạy (thay đường dẫn bằng thư mục đã giải nén):
+
+```sh
+sudo bash install-host-runtime.sh /path/to/extracted/camerawall_VERSION_linux_amd64
+sudo systemctl daemon-reload
+sudo systemctl restart camerawall-host.service camerawall.service
+sudo curl --fail --unix-socket /run/camerawall-host/control.sock http://host/status
+```
+
+Sau đó mở lại **Settings → Storage**. Các lệnh này cài dịch vụ và đọc trạng
+thái, không chọn, format hay di chuyển HDD. Nếu hệ thống đã có lịch sử ghi
+hình, việc chuyển sang HDD khác cần quy trình di chuyển riêng.

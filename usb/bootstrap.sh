@@ -3,7 +3,6 @@ set -Eeuo pipefail
 umask 077
 base=/usr/local/lib/camerawall-usb
 state=/var/lib/camerawall-usb
-source "$base/release.env"
 mkdir -p "$state"
 exec 9>"$state/lock"
 flock -n 9 || exit 1
@@ -13,25 +12,30 @@ trap 'rc=$?; echo "FAILED (exit $rc). Restore Internet, inspect journalctl -u ca
 source /etc/os-release
 [[ $ID == debian && $VERSION_ID == 12 ]]
 cd "$state"
+# Resolve a fresh snapshot before even inspecting cached bytes.
+release=$(python3 "$base/latest-release.py")
+read -r CAMERAWALL_VERSION CAMERAWALL_SHA256 CAMERAWALL_DISPLAY_SHA256 <<< "$release"
 archive="camerawall_${CAMERAWALL_VERSION}_linux_amd64.tar.gz"
-url="https://github.com/alt-hn/camerawall-releases/releases/download/$CAMERAWALL_VERSION/$archive"
-check() { printf '%s  %s\n' "$CAMERAWALL_SHA256" "$archive" | sha256sum -c -; }
-if ! check >/dev/null 2>&1; then
- echo "Downloading $CAMERAWALL_VERSION from GitHub Releases..."
- # Retain partial bytes across service restarts. A server without Range support
- # gets one clean retry; a mismatched completed object is never executed.
- if ! curl --proto '=https' --proto-redir '=https' --tlsv1.2 -fL --connect-timeout 30 --max-time 1800 --retry 5 --retry-all-errors --retry-delay 5 -C - -o "$archive.part" "$url"; then
-  echo 'Resume failed; retrying a fresh transfer.'
-  curl --proto '=https' --proto-redir '=https' --tlsv1.2 -fL --connect-timeout 30 --max-time 1800 --retry 5 --retry-all-errors --retry-delay 5 -o "$archive.part" "$url"
+display="camerawall-display_${CAMERAWALL_VERSION}_linux_amd64_debian12.tar.gz"
+fetch() {
+ local name=$1 digest=$2
+ local url="https://github.com/alt-hn/camerawall-releases/releases/download/$CAMERAWALL_VERSION/$name"
+ if printf '%s  %s\n' "$digest" "$name" | sha256sum -c --status; then
+  return
  fi
- printf '%s  %s\n' "$CAMERAWALL_SHA256" "$archive.part" | sha256sum -c - || { rm -f "$archive.part"; exit 1; }
- mv "$archive.part" "$archive"
-fi
-check
-# Validate paths/types before extraction and pin the package's source provenance.
-python3 - "$archive" "$CAMERAWALL_VERSION" "$CAMERAWALL_SOURCE_COMMIT" <<'PY'
+ local -a curl_options=(--proto '=https' --proto-redir '=https' --tlsv1.2 -fL --connect-timeout 30 --max-time 1800 --retry 5 --retry-all-errors --retry-delay 5)
+ if ! curl "${curl_options[@]}" -C - -o "$name.part" "$url"; then
+  curl "${curl_options[@]}" -o "$name.part" "$url"
+ fi
+ printf '%s  %s\n' "$digest" "$name.part" | sha256sum -c - || { rm -f "$name.part"; return 1; }
+ mv "$name.part" "$name"
+}
+fetch "$archive" "$CAMERAWALL_SHA256"
+fetch "$display" "$CAMERAWALL_DISPLAY_SHA256"
+# Validate paths/types before extraction and verify the package version.
+python3 - "$archive" "$CAMERAWALL_VERSION" <<'PY'
 import pathlib, sys, tarfile
-archive, version, commit = sys.argv[1:]
+archive, version = sys.argv[1:]
 root = f'camerawall_{version}_linux_amd64'
 with tarfile.open(archive) as t:
     for m in t.getmembers():
@@ -39,12 +43,12 @@ with tarfile.open(archive) as t:
         assert not p.is_absolute() and '..' not in p.parts and p.parts[0] == root, m.name
         assert m.isfile() or m.isdir(), m.name
     info = t.extractfile(root + '/BUILD-INFO.txt').read().decode()
-    assert f'version={version}\n' in info and f'source_commit={commit}\n' in info
+    assert f'version={version}\n' in info
     t.extractall('unpacked')
 PY
 echo 'Installing signed Debian dependencies and the offline analytics runtime...'
 apt-get -o Acquire::Retries=5 update
-DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y --no-install-recommends python3-venv libglib2.0-0 libgomp1
+DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y --no-install-recommends python3-venv libglib2.0-0 libgomp1 libqt6gui6 libqt6opengl6 libqt6network6 qt6-qpa-plugins qt6-wayland gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav weston libgl1-mesa-dri fonts-dejavu-core
 python3 "$base/provision-analytics.py"
 # A dedicated drop-in survives future install.sh --upgrade unit replacements.
 install -d -m 0755 /etc/systemd/system/camerawall.service.d
@@ -54,18 +58,23 @@ if [[ ! -e /var/lib/camerawall/update-settings.json ]]; then
  install -d -m 0755 /var/lib/camerawall
  printf '{"mode":"off","auto_download":false}\n' > /var/lib/camerawall/update-settings.json
 fi
-bash "unpacked/camerawall_${CAMERAWALL_VERSION}_linux_amd64/install.sh"
+bundle="unpacked/camerawall_${CAMERAWALL_VERSION}_linux_amd64"
+bash "$base/install-host-runtime.sh" "$bundle"
+bash "$bundle/install.sh"
 [[ $(systemctl show camerawall.service -p User --value) == root ]]
 # The timer honors the persisted UI mode; manual updates remain available.
 systemctl enable --now camerawall-auto-download.timer
 for attempt in $(seq 1 120); do
- if curl --noproxy '*' -fsS --max-time 5 http://127.0.0.1/ >/dev/null && systemctl is-active --quiet camerawall.service camerawall-media.service; then
-  printf 'version=%s\nsource_commit=%s\ncompleted=%s\n' "$CAMERAWALL_VERSION" "$CAMERAWALL_SOURCE_COMMIT" "$(date -u +%FT%TZ)" > "$state/complete"
+ if curl --noproxy '*' -fsS --max-time 5 http://127.0.0.1/ >/dev/null &&
+    systemctl is-active --quiet camerawall.service camerawall-media.service camerawall-host.service &&
+    curl --noproxy '*' -fsS --max-time 10 --unix-socket /run/camerawall-host/control.sock http://host/status >/dev/null; then
+  bash "$base/install-display-runtime.sh" "$display" "$CAMERAWALL_VERSION" "$CAMERAWALL_DISPLAY_SHA256"
+  printf 'version=%s\ncompleted=%s\n' "$CAMERAWALL_VERSION" "$(date -u +%FT%TZ)" > "$state/complete"
   echo "READY: CameraWall $CAMERAWALL_VERSION. LAN addresses: $(hostname -I)"
-  echo 'Open http://LAN-IP ; admin password: sudo cat /etc/camerawall/initial-admin-password'
+  echo 'Open http://LAN-IP ; admin password: sudo /opt/camerawall/bin/camerawall --show-initial-password'
   exit 0
  fi
  sleep 5
 done
-echo 'Services did not become HTTP-ready within 10 minutes.'
+echo 'CameraWall backend, media or appliance helper did not become ready.'
 exit 1

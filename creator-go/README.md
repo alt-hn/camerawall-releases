@@ -4,8 +4,11 @@ Go + Wails v2 desktop application for macOS ARM64/Intel and Windows x64. The UI 
 system WebKit/WebView2. No Python/Tk interpreter or browser runtime is bundled.
 The separate Linux installer still provisions its required Python AI environment.
 
-The application downloads pinned upstream Debian, CameraWall and AI components,
-verifies SHA-256, constructs the FAT32/initramfs/hybrid boot image locally, writes
+The application resolves the latest public CameraWall release from GitHub on
+each preparation and selects the matching backend and Debian 12 amd64 display
+packages. It reuses cached downloads only for the selected SHA-256. If the latest
+release cannot be verified, preparation stops. It downloads pinned Debian and AI
+components, verifies SHA-256, constructs the FAT32/initramfs/hybrid boot image locally, writes
 the selected USB and verifies a full readback. No CameraWall ISO is published.
 
 Seven visible stages cover permission, download, checksum, composition, write,

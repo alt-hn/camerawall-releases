@@ -11,12 +11,12 @@ root = Path(__file__).resolve().parent
 manifest = json.loads((root / 'image.json').read_text())
 assert manifest['mode'] == 'offline'
 sources = json.loads((root / 'offline/sources.json').read_text())
-assert all(re.fullmatch('[a-f0-9]{64}', item['sha256']) for item in [sources['debian'], sources['application'], *sources['analytics']])
+assert all(re.fullmatch('[a-f0-9]{64}', item['sha256']) for item in [sources['debian'], *sources['analytics']])
 args = [sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean', '--windowed', '--name', 'CameraWall USB Creator', '--distpath', str(root.parent / 'dist' / 'creator'), '--workpath', str(root.parent / '.cache' / 'creator-build'), '--specpath', str(root.parent / '.cache'), '--add-data', f'{root / "image.json"}:.', '--add-data', f'{root / "offline"}:offline', '--osx-bundle-identifier', 'com.alitasoft.camerawall.usbcreator']
 for package in ('pyfatfs', 'pycdlib', 'fs', 'certifi', 'six', 'appdirs'):
     args += ['--copy-metadata', package]
 args += ['--add-data', f'{root / "THIRD-PARTY-NOTICES.txt"}:.', '--add-data', f'{root / "LICENSE"}:.']
-for name in ('select-disk.sh', 'root-service.conf', 'release.env', 'provision-analytics.py', 'analytics-downloads.json', 'camerawall-console.service', 'console-ready.sh', 'camerawall-firstboot.service'):
+for name in ('select-disk.sh', 'root-service.conf', 'latest-release.py', 'install-display-runtime.sh', 'install-host-runtime.sh', 'provision-analytics.py', 'analytics-downloads.json', 'camerawall-console.service', 'console-ready.sh', 'camerawall-firstboot.service'):
     args += ['--add-data', f'{root.parent / "usb" / name}:usb-runtime']
 if platform.system() == 'Windows':
     args += ['--onefile']

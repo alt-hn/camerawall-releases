@@ -29,7 +29,9 @@ type Asset struct {
 }
 type Spec struct {
 	Debian      Asset   `json:"debian"`
-	Application Asset   `json:"application"`
+	Application Asset   `json:"-"`
+	Display     Asset   `json:"-"`
+	AppVersion  string  `json:"-"`
 	Analytics   []Asset `json:"analytics"`
 	Packages    []Asset `json:"-"`
 }
@@ -91,7 +93,7 @@ func newApp() *App {
 }
 func (a *App) reset() {
 	cache := a.state.Cache
-	a.state = State{Version: version, AppVersion: applicationVersion, Cache: cache, Phase: "idle", Status: "Chọn USB để bắt đầu", Files: []FileProgress{}, Logs: []string{}, Stages: []Stage{{ID: "permission", Title: "Cấp quyền USB", Status: "pending"}, {ID: "download", Title: "Tải thành phần", Status: "pending"}, {ID: "checksum", Title: "Kiểm tra checksum", Status: "pending"}, {ID: "compose", Title: "Tạo bộ cài bootable", Status: "pending"}, {ID: "write", Title: "Ghi USB", Status: "pending"}, {ID: "readback", Title: "Đọc lại kiểm tra", Status: "pending"}, {ID: "finish", Title: "Hoàn tất", Status: "pending"}}}
+	a.state = State{Version: version, AppVersion: "—", Cache: cache, Phase: "idle", Status: "Chọn USB để bắt đầu", Files: []FileProgress{}, Logs: []string{}, Stages: []Stage{{ID: "permission", Title: "Cấp quyền USB", Status: "pending"}, {ID: "download", Title: "Tải thành phần", Status: "pending"}, {ID: "checksum", Title: "Kiểm tra checksum", Status: "pending"}, {ID: "compose", Title: "Tạo bộ cài bootable", Status: "pending"}, {ID: "write", Title: "Ghi USB", Status: "pending"}, {ID: "readback", Title: "Đọc lại kiểm tra", Status: "pending"}, {ID: "finish", Title: "Hoàn tất", Status: "pending"}}}
 	if runtime.GOOS == "windows" {
 		stages := a.state.Stages
 		a.state.Stages = append(append(append([]Stage{}, stages[1:4]...), stages[0]), stages[4:]...)
@@ -296,8 +298,8 @@ func loadSpec() (Spec, error) {
 func (s Spec) assets() []Asset {
 	seen := map[string]bool{}
 	out := []Asset{}
-	for _, p := range append(append([]Asset{s.Debian, s.Application}, s.Analytics...), s.Packages...) {
-		if !seen[p.SHA256] {
+	for _, p := range append(append([]Asset{s.Debian, s.Application, s.Display}, s.Analytics...), s.Packages...) {
+		if p.SHA256 != "" && !seen[p.SHA256] {
 			out = append(out, p)
 			seen[p.SHA256] = true
 		}
@@ -309,9 +311,15 @@ func (a *App) prepare(ctx context.Context) (Image, error) {
 	if e != nil {
 		return Image{}, e
 	}
+	a.phase("download", "Kiểm tra bản CameraWall mới nhất trên GitHub", 0, "bytes")
+	s.AppVersion, s.Application, s.Display, e = resolveRelease(ctx, latestReleaseURL)
+	if e != nil {
+		return Image{}, fmt.Errorf("không xác định được bản CameraWall mới nhất: %w", e)
+	}
 	items := s.assets()
 	var total int64
 	a.mu.Lock()
+	a.state.AppVersion = s.AppVersion
 	for _, p := range items {
 		category := "Debian packages"
 		switch {
@@ -319,6 +327,8 @@ func (a *App) prepare(ctx context.Context) (Image, error) {
 			category = "Debian OS"
 		case p.SHA256 == s.Application.SHA256:
 			category = "CameraWall"
+		case p.SHA256 == s.Display.SHA256:
+			category = "Local Display"
 		default:
 			for _, v := range s.Analytics {
 				if v.SHA256 == p.SHA256 {
@@ -331,7 +341,7 @@ func (a *App) prepare(ctx context.Context) (Image, error) {
 		total += p.Size
 	}
 	a.mu.Unlock()
-	a.phase("download", fmt.Sprintf("Tải %d thành phần từ nguồn đã ghim", len(items)), total, "bytes")
+	a.phase("download", fmt.Sprintf("Tải %d thành phần đã xác định", len(items)), total, "bytes")
 	paths, e := a.downloadAll(ctx, items)
 	if e != nil {
 		return Image{}, e
