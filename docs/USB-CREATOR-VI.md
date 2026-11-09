@@ -38,7 +38,12 @@ kiểm tra/tái sử dụng cache, nối tiếp file tải dở. Không tự b�
   FFmpeg/Python, CameraWall và toàn bộ wheel/model AI cần thiết.
 - Bật máy: USB tự cài không cần bấm phím. **Tự xóa toàn bộ ổ nhỏ nhất đủ 24 GiB
   ngoài ổ đang boot**; nếu bằng dung lượng, chọn theo tên thiết bị Linux. Các ổ
-  khác được khóa chỉ đọc trong phiên cài. Không có ổ hợp lệ thì dừng.
+  khác được khóa chỉ đọc trong phiên cài. Không có ổ hợp lệ thì mở màn chọn thủ công,
+  với **Cancel** hoặc **Rescan disks** để quét lại.
+- Chọn **Install CameraWall - choose target disk manually** ở menu boot để chọn
+  ổ đã nhận diện, kể cả ổ bị bỏ qua ở chế độ tự động. Chọn **Confirm** để chuyển
+  ngay sang bước phân vùng và xóa ổ đã chọn.
+  USB cài và các ổ còn lại được bảo vệ. Xem chi tiết ở `Ctrl+Alt+F4`.
 - Từ Creator 2.0.1, bộ cài mặc định mở giao diện đồ họa và hiện tiến độ kiểm
   SHA-256 của các tệp trên USB. Nếu kiểm tra thất bại, bộ cài báo lỗi và dừng
   trước khi phân vùng. Cảnh báo hiện tên và

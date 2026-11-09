@@ -226,6 +226,10 @@ if search --no-floppy --label --set=cwdata CWOFFLIN; then
   linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
   initrd /install.amd/gtk/initrd.gz ($cwdata)/cw-initrd.gz
  }
+ menuentry 'Install CameraWall - choose target disk manually' {
+  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg camerawall.disk=manual --- quiet
+  initrd /install.amd/gtk/initrd.gz ($cwdata)/cw-initrd.gz
+ }
  menuentry 'Install with text console' {
   linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
   initrd /install.amd/initrd.gz ($cwdata)/cw-initrd.gz

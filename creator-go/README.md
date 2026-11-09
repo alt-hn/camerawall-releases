@@ -49,6 +49,13 @@ automatically selects the smallest eligible non-boot disk ≥24 GiB. It displays
 the exact target and gives the operator 10 seconds to cancel before handing off
 to partitioning. The graphical boot entry is the default. The text-console
 entry uses the same selection and erase policy.
+Choose **Install CameraWall - choose target disk manually** in the USB boot menu
+to choose a detected destination disk, including disks skipped by automatic selection.
+If automatic mode finds no eligible disk, it opens the same manual menu.
+The menu defaults to Cancel. In manual mode, Confirm hands the selected disk
+directly to Debian's partitioner. The installer attempts to clear the selected
+disk's read-only flag if needed.
+Both modes protect the installer disk and all unselected disks.
 
 For direct macOS distribution, build with `wails build -clean -platform darwin/universal`.
 Sign the app bundle with the Developer ID Application certificate using

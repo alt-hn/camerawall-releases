@@ -1,3 +1,10 @@
+## USB Creator 2.0.11 — 2026-11-09
+
+- Add manual target selection and open it when automatic selection finds no eligible disk.
+- Confirm the selected disk once, clear its old partition map and filesystem headers,
+  and let Debian create a fresh GPT and EFI filesystem. Keep the installer USB and
+  other disks read-only.
+
 ## USB Creator 2.0.4 — 2026-11-08
 
 - Keep graphical installer controls inside a padded 1024×600 safe area when
