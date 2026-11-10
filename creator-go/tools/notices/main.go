@@ -18,7 +18,7 @@ func main() {
 	}
 	d := json.NewDecoder(bytes.NewReader(b))
 	var out strings.Builder
-	out.WriteString("CameraWall USB Creator 2.0.11 — third-party Go modules\n\nBuilt with Go and Wails. macOS WebKit / Windows WebView2 are system components.\nNo Python, PyInstaller, pycdlib or pyfatfs runtime is bundled in this Creator.\nOffline Linux installation payloads retain their own upstream licenses.\n\n")
+	out.WriteString("CameraWall USB Creator 2.0.14 — third-party Go modules\n\nBuilt with Go and Wails. macOS WebKit / Windows WebView2 are system components.\nNo Python, PyInstaller, pycdlib or pyfatfs runtime is bundled in this Creator.\nOffline Linux installation payloads retain their own upstream licenses.\n\n")
 	for {
 		var m struct {
 			Path, Version, Dir string

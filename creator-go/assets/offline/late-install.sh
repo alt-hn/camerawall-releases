@@ -23,9 +23,14 @@ printf 'auto lo\niface lo inet loopback\n' > /target/etc/network/interfaces
 in-target systemctl enable NetworkManager camerawall-firstboot.service camerawall-console.service
 in-target systemctl disable NetworkManager-wait-online.service
 in-target python3 -c 'import pathlib,secrets,subprocess; p="".join(secrets.choice("abcdefghijkmnpqrstuvwxyz") for _ in range(8)); subprocess.run(["chpasswd"],input="cwadmin:"+p+"\n",text=True,check=True); f=pathlib.Path("/var/lib/camerawall-usb/linux-password"); f.touch(mode=0o600); f.write_text(p+"\n")'
-# Remove the temporary local installer repository before the first normal boot.
+# Package installation is complete. Replace the installer's CD-ROM and
+# temporary file sources with the appliance's normal Debian repositories.
 rm -f /target/etc/apt/sources.list.d/camerawall-offline.list
-sed -i '\|file:/cw-media|d' /target/etc/apt/sources.list
+cat > /target/etc/apt/sources.list <<'APT'
+deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian bookworm main non-free-firmware
+deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian bookworm-updates main non-free-firmware
+deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian-security bookworm-security main non-free-firmware
+APT
 [ -s /target/boot/grub/grub.cfg ]
 printf 'CameraWall offline appliance 1.0.0\n' > /target/camerawall-installed.marker
 

@@ -26,9 +26,9 @@ func main() {
 			label = "macos-arm64"
 		}
 	}
-	out := filepath.Join("..", "dist", "creator-v2.0.11")
+	out := filepath.Join("..", "dist", "creator-v2.0.14")
 	must(os.MkdirAll(out, 0755))
-	name := "CameraWall-USB-Creator-2.0.11-" + label
+	name := "CameraWall-USB-Creator-2.0.14-" + label
 	var target string
 	if runtime.GOOS == "windows" {
 		target = filepath.Join(out, name+".exe")
@@ -58,7 +58,7 @@ func main() {
 	must(e)
 	sd := sha256.Sum256(sources)
 	pd := sha256.Sum256(packages)
-	info := map[string]interface{}{"file": filepath.Base(target), "size": len(b), "sha256": hex.EncodeToString(digest[:]), "source": strings.TrimSpace(string(source)), "os": runtime.GOOS, "arch": runtime.GOARCH, "go": runtime.Version(), "version": "2.0.11", "application": "latest public release at USB preparation", "mode": "offline", "publisher_signed": false, "sources_sha256": hex.EncodeToString(sd[:]), "debian_packages_sha256": hex.EncodeToString(pd[:])}
+	info := map[string]interface{}{"file": filepath.Base(target), "size": len(b), "sha256": hex.EncodeToString(digest[:]), "source": strings.TrimSpace(string(source)), "os": runtime.GOOS, "arch": runtime.GOARCH, "go": runtime.Version(), "version": "2.0.14", "application": "latest public release at USB preparation", "mode": "offline", "publisher_signed": false, "sources_sha256": hex.EncodeToString(sd[:]), "debian_packages_sha256": hex.EncodeToString(pd[:])}
 	raw, e := json.MarshalIndent(info, "", "  ")
 	must(e)
 	must(os.WriteFile(filepath.Join(out, name+".json"), append(raw, '\n'), 0644))

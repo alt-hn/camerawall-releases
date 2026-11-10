@@ -14,7 +14,7 @@ import (
 //go:embed frontend/* assets/* THIRD-PARTY-NOTICES.txt LICENSE
 var bundled embed.FS
 
-const version = "2.0.11"
+const version = "2.0.14"
 
 func main() {
 	if len(os.Args) > 1 {

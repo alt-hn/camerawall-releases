@@ -1,4 +1,4 @@
-CameraWall USB Creator 2.0.11 — third-party Go modules
+CameraWall USB Creator 2.0.14 — third-party Go modules
 
 Built with Go and Wails. macOS WebKit / Windows WebView2 are system components.
 No Python, PyInstaller, pycdlib or pyfatfs runtime is bundled in this Creator.

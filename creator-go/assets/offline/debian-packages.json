@@ -390,6 +390,12 @@
     "sha256": "e3dc84316cfdf7e3feefe4eaf507758d2630ea131e1834e1f07525b3e537db2d"
   },
   {
+    "url": "https://deb.debian.org/debian/pool/main/s/systemd/systemd-timesyncd_252.39-1%7edeb12u2_amd64.deb",
+    "name": "systemd-timesyncd_252.39-1~deb12u2_amd64.deb",
+    "size": 64060,
+    "sha256": "b382c895064a59127da7f64bb2524041ffa2c6693f63d537d9c7f8d4ae37b345"
+  },
+  {
     "url": "https://deb.debian.org/debian/pool/main/d/dbus/libdbus-1-3_1.14.10-1%7edeb12u1_amd64.deb",
     "name": "libdbus-1-3_1.14.10-1~deb12u1_amd64.deb",
     "size": 201240,
