@@ -1,6 +1,56 @@
 #!/bin/sh
 set -eu
-[ -s /tmp/camerawall-system-disk ]
+verify_boot_target() {
+ disk=$(cat /tmp/camerawall-system-disk) || return 1
+ sequence=$(cat /tmp/camerawall-system-diskseq) || return 1
+ [ "$(cat "/sys/block/${disk##*/}/diskseq")" = "$sequence" ] || return 1
+ for mount in /target /target/boot/efi; do
+  dev=$(awk -v path="$mount" '$5 == path {dev=$3; n++} END {if (n==1) print dev}' /proc/self/mountinfo)
+  [ -n "$dev" ] || return 1
+  node=$(readlink -f "/sys/dev/block/$dev") || return 1
+  [ -f "$node/partition" ] && [ "$(basename "$(dirname "$node")")" = "${disk##*/}" ] || return 1
+ done
+ [ -s /target/boot/grub/grub.cfg ] || return 1
+ [ -s /target/boot/efi/EFI/BOOT/BOOTX64.EFI ] ||
+  [ -s /target/boot/efi/EFI/debian/shimx64.efi ] ||
+  [ -s /target/boot/efi/EFI/debian/grubx64.efi ]
+}
+if ! verify_boot_target; then
+ logger -t camerawall 'INSTALL STOPPED: system or EFI partition is not on the selected disk, or EFI boot files are missing.'
+ echo 'CameraWall: could not verify boot files on the selected disk. See Ctrl+Alt+F4.' > /dev/console
+ exit 1
+fi
+logger -t camerawall "Verified system and EFI partitions on $disk."
+
+# GRUB registers the installed system in BootOrder. Prefer its exact ESP for
+# the first reboot, even if the firmware has an older BootNext value.
+target_efibootmgr() {
+ # Debian Installer mounts a fresh sysfs for in-target and unmounts its
+ # children afterward. Mount efivarfs within that same invocation.
+ in-target --pass-stdout sh -c '
+  vars=/sys/firmware/efi/efivars
+  mountpoint -q "$vars" || mount -t efivarfs efivarfs "$vars" || exit 1
+  exec efibootmgr "$@"
+ ' sh "$@"
+}
+prefer_installed_efi() {
+ esp_uuid=$(in-target --pass-stdout blkid -s PARTUUID -o value "/dev/${node##*/}") || return 1
+ [ -n "$esp_uuid" ] || return 1
+ entries=$(target_efibootmgr -v) || return 1
+ entry=$(printf '%s\n' "$entries" | awk -v uuid="$esp_uuid" '
+  /^Boot[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]\*/ {
+   line=tolower($0)
+   if (index(line, ",gpt," tolower(uuid) ",") &&
+       line ~ /file\(\\efi\\debian\\(shim|grub)x64[.]efi\)/) {
+    print substr($0,5,4)
+    exit
+   }
+  }')
+ [ -n "$entry" ] && target_efibootmgr --bootnext "$entry"
+}
+if ! prefer_installed_efi; then
+ logger -t camerawall "Could not set the one-time UEFI boot target for $disk; select it in the firmware boot menu if necessary."
+fi
 base=/target/usr/local/lib/camerawall-usb
 state=/target/var/lib/camerawall-usb
 mkdir -p "$base" "$state/analytics-downloads"
@@ -31,7 +81,6 @@ deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debia
 deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian bookworm-updates main non-free-firmware
 deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian-security bookworm-security main non-free-firmware
 APT
-[ -s /target/boot/grub/grub.cfg ]
 printf 'CameraWall offline appliance 1.0.0\n' > /target/camerawall-installed.marker
 
 # Preserve the USB recovery marker even if generating the boot-check entries fails.

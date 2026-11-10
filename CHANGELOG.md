@@ -1,3 +1,12 @@
+## USB Creator 2.0.17
+
+- Default to Auto and keep the selected target through preparation and retries in both modes.
+- Release target-owned mounts and swap, clear software read-only flags, and offer retry on the same disk if preparation still fails.
+- Put whole-disk partition cleanup directly on the selected-disk screen.
+- Add disk options to delete all partitions or format a selected partition as ext4.
+- Verify that the system and EFI partitions are on the selected disk, and prefer
+  its matching UEFI entry for the first reboot when the firmware allows it.
+
 ## USB Creator 2.0.11 — 2026-11-09
 
 - Add manual target selection and open it when automatic selection finds no eligible disk.

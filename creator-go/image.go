@@ -196,13 +196,11 @@ func debControl(filename string) (string, error) {
 const bootMenu = `insmod part_gpt
 insmod fat
 insmod ext2
-set default=install
+set default=auto
 set timeout=5
 set timeout_style=menu
 if search --no-floppy --file --set=cwroot /camerawall-installed.marker; then
- set default=installed
- set timeout=10
- menuentry 'Boot installed CameraWall' --id installed {
+ menuentry 'Recovery - boot detected CameraWall' --id installed {
   set root=$cwroot
   set prefix=($cwroot)/boot/grub
   set cw_installer_boot_arg=camerawall.installer_boot=1
@@ -222,21 +220,21 @@ if search --no-floppy --label --set=cwdata CWOFFLIN; then
    export theme
   fi
  fi
- menuentry 'Install / reinstall CameraWall (erases target disk)' --id install {
-  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
+ menuentry 'Auto - install CameraWall' --id auto {
+  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg camerawall.disk=auto --- quiet
   initrd /install.amd/gtk/initrd.gz ($cwdata)/cw-initrd.gz
  }
- menuentry 'Install CameraWall - choose target disk manually' {
+ menuentry 'Manual - choose disk / Disk options' --id install {
   linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg camerawall.disk=manual --- quiet
   initrd /install.amd/gtk/initrd.gz ($cwdata)/cw-initrd.gz
  }
- menuentry 'Install with text console' {
-  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg --- quiet
+ menuentry 'Manual - text console' {
+  linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/preseed.cfg camerawall.disk=manual --- quiet
   initrd /install.amd/initrd.gz ($cwdata)/cw-initrd.gz
  }
 else
  echo 'CameraWall payload missing. Installation is unavailable.'
- if [ "$default" = install ]; then
+ if [ "$default" = auto ]; then
   halt
  fi
 fi

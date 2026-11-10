@@ -36,27 +36,21 @@ kiểm tra/tái sử dụng cache, nối tiếp file tải dở. Không tự b�
   được kiểm chứng; dùng UEFI, tắt Secure Boot và ưu tiên boot USB trong firmware.
 - **Không cần Internet hoặc Ethernet trong quá trình cài.** USB chứa Debian,
   FFmpeg/Python, CameraWall và toàn bộ wheel/model AI cần thiết.
-- Bật máy: USB tự cài không cần bấm phím. **Tự xóa toàn bộ ổ nhỏ nhất đủ 24 GiB
-  ngoài ổ đang boot**; nếu bằng dung lượng, chọn theo tên thiết bị Linux. Các ổ
-  khác được khóa chỉ đọc trong phiên cài. Không có ổ hợp lệ thì mở màn chọn thủ công,
-  với **Cancel** hoặc **Rescan disks** để quét lại.
-- Chọn **Install CameraWall - choose target disk manually** ở menu boot để chọn
-  ổ đã nhận diện, kể cả ổ bị bỏ qua ở chế độ tự động. Chọn **Confirm** để chuyển
-  ngay sang bước phân vùng và xóa ổ đã chọn.
-  USB cài và các ổ còn lại được bảo vệ. Xem chi tiết ở `Ctrl+Alt+F4`.
-- Từ Creator 2.0.1, bộ cài mặc định mở giao diện đồ họa và hiện tiến độ kiểm
-  SHA-256 của các tệp trên USB. Nếu kiểm tra thất bại, bộ cài báo lỗi và dừng
-  trước khi phân vùng. Cảnh báo hiện tên và
-  dung lượng ổ đích, đếm ngược **10 giây** rồi tiếp tục nếu bạn không bấm **Cancel**.
-  Từ Creator 2.0.4, giao diện đồ họa đặt các nút trong vùng có lề của
-  1024×600, kể cả khi framebuffer báo 1024×768. Có thể chọn **Install with
-  text console** ở menu boot khi cần.
-- Máy tự reboot và chạy CameraWall bằng root. Giữ USB cắm nguyên không gây cài
-  lại khi đã có dấu nhận diện hệ thống. Với USB tạo bằng Creator 2.0.2, chọn
-  **UEFI: tên USB** trong menu boot của máy. Menu CameraWall hiện 10 giây và
-  mặc định chọn **Boot installed CameraWall**. Chọn **Install / reinstall
-  CameraWall (erases target disk)** nếu muốn cài lại. Mất điện trước khi có
-  dấu nhận diện có thể dẫn tới một lần cài mới.
+- Mặc định **Auto - install CameraWall** để tự chọn ổ từ 24 GiB, ưu tiên SSD/NVMe nội bộ rồi HDD nội bộ,
+  sau đó mới đến ổ ngoài. Cùng loại thì chọn ổ nhỏ nhất,
+  với 10 giây để hủy. Setup tự xử lý mount, swap và cờ chỉ đọc của ổ đích; Auto tự thử lại trên ổ đó nếu còn lỗi. Manual có nút **Retry this disk**.
+- Chọn **Manual - choose disk / Disk options** và chọn đúng ổ đích
+  theo tên, loại ổ và dung lượng. Chọn **Install CameraWall → Confirm** để cài
+  mới và xóa dữ liệu trên ổ đó. Nếu ổ bị khóa hoặc không thể ghi, setup dừng.
+- Ngay màn hình ổ đã chọn, **Clean disk - delete ALL partitions** xóa bảng phân vùng và boot
+  record cũ của ổ đã chọn. **Format a partition (ext4)** chỉ format phân vùng
+  đã chọn. Cả hai đều yêu cầu xác nhận riêng và giữ nguyên ổ đã chọn khi xong.
+  USB cài được bảo vệ. Xem chi tiết ở `Ctrl+Alt+F4`; có thể dùng mục
+  **Manual - text console** nếu giao diện đồ họa không hiển thị tốt.
+- Setup kiểm tra phân vùng hệ thống và EFI cùng nằm trên ổ đã chọn. Sau khi
+  cài xong, rút USB. Nếu firmware vẫn ưu tiên ổ cũ, chọn ổ vừa cài trong
+  UEFI Boot Menu và đưa lên đầu trong Boot Order. Mục **Recovery - boot
+  detected CameraWall** trên USB chỉ chạy khi chọn thủ công.
 - Màn hình hiện READY và mật khẩu. Cắm Ethernet có DHCP để nhận IP và dùng UI
   CameraWall từ một máy khác trong LAN. Internet chỉ cần khi kiểm tra/tải update.
 - Khi màn hình hiện `Boot check: pending`, tắt máy, rút USB cài rồi bật lại.

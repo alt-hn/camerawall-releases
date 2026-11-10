@@ -44,18 +44,18 @@ flashes physical disks. Native Windows CI writes only a newly created, explicitl
 associated temporary VHD. Local composition validation reads every payload file
 back from the generated FAT filesystem and checks its pinned digest.
 
-Full offline installation on a physical machine remains unvalidated. The installer
-automatically selects the smallest eligible non-boot disk ≥24 GiB. It displays
-the exact target and gives the operator 10 seconds to cancel before handing off
-to partitioning. The graphical boot entry is the default. The text-console
-entry uses the same selection and erase policy.
-Choose **Install CameraWall - choose target disk manually** in the USB boot menu
-to choose a detected destination disk, including disks skipped by automatic selection.
-If automatic mode finds no eligible disk, it opens the same manual menu.
-The menu defaults to Cancel. In manual mode, Confirm hands the selected disk
-directly to Debian's partitioner. The installer attempts to clear the selected
-disk's read-only flag if needed.
-Both modes protect the installer disk and all unselected disks.
+Auto is the default boot entry. It prefers internal SSD/NVMe/flash storage,
+then internal HDD, then external storage (minimum 24 GiB). Within a class it
+chooses the smallest disk, breaking ties by device name. It installs after a cancelable 10-second countdown. It attempts to release target mounts and swap and clear software read-only flags.
+Auto retries failures on the fixed target without input. Manual offers Retry on
+the same disk. Disk replacement or an unreadable identity stops setup. Manual lists detected destination disks and asks for confirmation. The selected-disk screen can delete
+all partitions and old boot metadata on a disk, or format a single existing
+partition as ext4. Each operation has its own confirmation and keeps that disk selected on success. Installation creates new system and EFI partitions on the
+same selected disk and verifies both before marking setup complete. The installer
+USB is excluded from every disk operation. Remove it after installation and
+select the new disk in the UEFI boot menu if the firmware still prefers an old
+boot entry. The USB recovery entry can boot a detected CameraWall installation
+when selected explicitly.
 
 For direct macOS distribution, build with `wails build -clean -platform darwin/universal`.
 Sign the app bundle with the Developer ID Application certificate using

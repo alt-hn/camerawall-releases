@@ -10,7 +10,7 @@ const english = {
   "Chỉ hiện USB ngoài máy; ổ hệ thống được loại trừ.": "External USB devices only; system disks are excluded.",
   "Quét lại": "Refresh",
   "USB được chọn sẽ bị xóa toàn bộ.": "All data on the selected USB will be erased.",
-  "Bộ cài sau đó tự xóa ổ nhỏ nhất đủ 24 GiB ngoài USB boot trên máy cần cài.": "On the target computer, the installer then automatically erases the smallest eligible disk of at least 24 GiB, excluding the boot USB.",
+  "Khi boot USB, chọn Auto để tự cài hoặc Manual để tự chọn ổ đích.": "At USB boot, choose Auto to install automatically or Manual to select the destination disk.",
   "CHƯA BẮT ĐẦU": "NOT STARTED",
   "Chọn USB để bắt đầu": "Select a USB to begin",
   "Tiến độ thao tác hiện tại": "Current action progress",
