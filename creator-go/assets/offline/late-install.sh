@@ -1,25 +1,27 @@
 #!/bin/sh
 set -eu
+boot_error() {
+ logger -t camerawall "INSTALL STOPPED: $*"
+ exit 1
+}
 verify_boot_target() {
- disk=$(cat /tmp/camerawall-system-disk) || return 1
- sequence=$(cat /tmp/camerawall-system-diskseq) || return 1
- [ "$(cat "/sys/block/${disk##*/}/diskseq")" = "$sequence" ] || return 1
+ disk=$(cat /tmp/camerawall-system-disk) && sequence=$(cat /tmp/camerawall-system-diskseq) ||
+  boot_error 'Missing selected disk identity.'
+ [ "$(cat "/sys/block/${disk##*/}/diskseq")" = "$sequence" ] ||
+  boot_error "Selected disk $disk changed before boot verification."
  for mount in /target /target/boot/efi; do
   dev=$(awk -v path="$mount" '$5 == path {dev=$3; n++} END {if (n==1) print dev}' /proc/self/mountinfo)
-  [ -n "$dev" ] || return 1
-  node=$(readlink -f "/sys/dev/block/$dev") || return 1
-  [ -f "$node/partition" ] && [ "$(basename "$(dirname "$node")")" = "${disk##*/}" ] || return 1
+  [ -n "$dev" ] && node=$(readlink -f "/sys/dev/block/$dev") ||
+   boot_error "Cannot identify the partition mounted at $mount (expected disk $disk)."
+  [ -f "$node/partition" ] && [ "$(basename "$(dirname "$node")")" = "${disk##*/}" ] ||
+   boot_error "$mount is on $node (expected a partition of $disk)."
  done
- [ -s /target/boot/grub/grub.cfg ] || return 1
+ [ -s /target/boot/grub/grub.cfg ] || boot_error "Missing /boot/grub/grub.cfg on $disk."
  [ -s /target/boot/efi/EFI/BOOT/BOOTX64.EFI ] ||
   [ -s /target/boot/efi/EFI/debian/shimx64.efi ] ||
-  [ -s /target/boot/efi/EFI/debian/grubx64.efi ]
+  [ -s /target/boot/efi/EFI/debian/grubx64.efi ] || boot_error "Missing EFI loader on /dev/${node##*/} ($disk)."
 }
-if ! verify_boot_target; then
- logger -t camerawall 'INSTALL STOPPED: system or EFI partition is not on the selected disk, or EFI boot files are missing.'
- echo 'CameraWall: could not verify boot files on the selected disk. See Ctrl+Alt+F4.' > /dev/console
- exit 1
-fi
+verify_boot_target
 logger -t camerawall "Verified system and EFI partitions on $disk."
 
 # GRUB registers the installed system in BootOrder. Prefer its exact ESP for
@@ -57,7 +59,7 @@ mkdir -p "$base" "$state/analytics-downloads"
 cp /camerawall/release.env /camerawall/root-service.conf /camerawall/provision-analytics.py /camerawall/analytics-downloads.json "$base/"
 cp /camerawall/install-display-runtime.sh /camerawall/install-host-runtime.sh "$base/"
 cp /camerawall/offline-bootstrap.sh "$base/bootstrap.sh"
-cp /camerawall/console-ready.sh "$base/console-ready.sh"
+cp /camerawall/console-ready.sh /camerawall/install-log.sh "$base/"
 chmod 755 "$base/bootstrap.sh" "$base/console-ready.sh"
 cp /cw-media/app.tar.gz /cw-media/display.tar.gz "$state/"
 cp /cw-media/analytics/* "$state/analytics-downloads/"
@@ -81,13 +83,16 @@ deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debia
 deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian bookworm-updates main non-free-firmware
 deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian-security bookworm-security main non-free-firmware
 APT
-printf 'CameraWall offline appliance 1.0.0\n' > /target/camerawall-installed.marker
-
-# Preserve the USB recovery marker even if generating the boot-check entries fails.
 mkdir -p /target/etc/default/grub.d
 cat > /target/etc/default/grub.d/99-camerawall-bootcheck.cfg <<'GRUB'
+GRUB_DEFAULT=0
+GRUB_TIMEOUT_STYLE=menu
+GRUB_TIMEOUT=3
+GRUB_RECORDFAIL_TIMEOUT=3
 GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX camerawall.bootcheck=1 "'$cw_installer_boot_arg'
 GRUB
 if ! in-target update-grub; then
- logger -t camerawall 'Could not generate boot verification entries. USB recovery remains available.'
+ logger -t camerawall 'INSTALL STOPPED: could not generate the installed GRUB configuration.'
+ exit 1
 fi
+printf 'CameraWall offline appliance 1.0.0\n' > /target/camerawall-installed.marker

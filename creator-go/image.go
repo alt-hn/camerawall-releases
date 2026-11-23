@@ -67,6 +67,9 @@ func runtimeFiles() (map[string][]byte, error) {
 	}
 	for dest, name := range map[string]string{
 		"etc/gtk-2.0/gtkrc":                     "gtkrc",
+		"camerawall/error-log.so":               "error-log.so",
+		"camerawall/bin/debconf":                "debconf.sh",
+		"lib/debian-installer.d/S69camerawall":  "frontend-path.sh",
 		"camerawall/viewport-frame.so":          "viewport-frame.so",
 		"usr/share/graphics/logo_debian.png":    "banner.png",
 		"usr/share/graphics/logo_installer.png": "banner.png",
@@ -114,7 +117,7 @@ func initramfs(files map[string][]byte) []byte {
 	}
 	for _, name := range sortedKeys(files) {
 		mode := 0100644
-		if strings.HasSuffix(name, ".sh") || strings.Contains(name, "/generators/") {
+		if strings.HasSuffix(name, ".sh") || strings.Contains(name, "/generators/") || name == "camerawall/bin/debconf" {
 			mode = 0100755
 		}
 		add(name, files[name], mode)

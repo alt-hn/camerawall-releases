@@ -1,3 +1,8 @@
+## USB Creator 2.0.19 — 2026-11-23
+
+- Show package and disk errors at the top of the installer error dialog. The graphical and text installers include the full available syslog and APT terminal log, with credential-related lines hidden.
+- Report the selected disk and boot verification failures on screen. The installed GRUB menu starts Debian after three seconds.
+
 ## USB Creator 2.0.17
 
 - Default to Auto and keep the selected target through preparation and retries in both modes.

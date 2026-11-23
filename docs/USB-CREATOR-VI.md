@@ -45,10 +45,10 @@ kiểm tra/tái sử dụng cache, nối tiếp file tải dở. Không tự b�
 - Ngay màn hình ổ đã chọn, **Clean disk - delete ALL partitions** xóa bảng phân vùng và boot
   record cũ của ổ đã chọn. **Format a partition (ext4)** chỉ format phân vùng
   đã chọn. Cả hai đều yêu cầu xác nhận riêng và giữ nguyên ổ đã chọn khi xong.
-  USB cài được bảo vệ. Xem chi tiết ở `Ctrl+Alt+F4`; có thể dùng mục
+  USB cài được bảo vệ. Khi cài đặt gặp lỗi, hộp thoại tự hiện lỗi gói hoặc ổ đĩa tìm được và toàn bộ nhật ký hiện có. Cuộn để xem các dòng trước đó. Các dòng có dấu hiệu chứa thông tin đăng nhập được che. Có thể dùng mục
   **Manual - text console** nếu giao diện đồ họa không hiển thị tốt.
 - Setup kiểm tra phân vùng hệ thống và EFI cùng nằm trên ổ đã chọn. Sau khi
-  cài xong, rút USB. Nếu firmware vẫn ưu tiên ổ cũ, chọn ổ vừa cài trong
+  cài xong, rút USB. GRUB trên ổ vừa cài tự chọn Debian sau 3 giây. Nếu firmware vẫn ưu tiên ổ cũ, chọn ổ vừa cài trong
   UEFI Boot Menu và đưa lên đầu trong Boot Order. Mục **Recovery - boot
   detected CameraWall** trên USB chỉ chạy khi chọn thủ công.
 - Màn hình hiện READY và mật khẩu. Cắm Ethernet có DHCP để nhận IP và dùng UI

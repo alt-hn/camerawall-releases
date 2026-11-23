@@ -27,7 +27,9 @@ state=/var/lib/camerawall-usb
   fi
  fi
  if [[ ! -f $state/complete ]]; then
-  printf 'CameraWall setup is incomplete. Check camerawall-firstboot before retrying.\n'
+  printf 'CameraWall first-boot setup is incomplete. Recent service log:\n'
+  journalctl -b -u camerawall-firstboot.service -n 40 --no-pager -o cat |
+   /bin/sh /usr/local/lib/camerawall-usb/install-log.sh --stdin
   exit 0
  fi
  printf '\nCameraWall READY: http://%s\n' "$(hostname -I | awk '{print $1}')"

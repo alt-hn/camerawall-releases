@@ -23,7 +23,7 @@ TEMPLATES
  while :; do sleep 3600; done
 }
 . /usr/share/debconf/confmodule
-trap 'fail "Unexpected disk preparation error. See /var/log/syslog (Ctrl+Alt+F4)."' EXIT
+trap 'fail "Unexpected disk preparation error."' EXIT
 [ -d /sys/firmware/efi ] || fail 'UEFI boot is required.'
 command -v blockdev >/dev/null || fail 'Cannot enforce disk protection.'
 # Resolve the actual mounted installer device to its whole physical disk. Do not
@@ -210,7 +210,7 @@ prepare_target() {
  done
  disk_unused "$sys" || fail "Cannot use $target: $disk_use_reason."
  check_inventory
- blockdev --rereadpt "$target" || fail "Kernel refused to reload the partition table on $target. Check the disk lock and see Ctrl+Alt+F4 for details."
+ blockdev --rereadpt "$target" || fail "Kernel refused to reload the partition table on $target. Check the disk lock."
 }
 # Remove the old partition map and filesystem headers before Partman probes the
 # confirmed target. Leave creation of the new GPT and EFI filesystem to Debian.
@@ -235,17 +235,17 @@ reset_target_layout() {
   if [ "$length" -gt "$edge" ]; then length=$edge; fi
   tail_start=$((tail_start - length))
   check_inventory
-  dd if=/dev/zero of="$target" bs="$sector_size" seek="$tail_start" count="$length" conv=notrunc 2>/dev/null ||
+  dd if=/dev/zero of="$target" bs="$sector_size" seek="$tail_start" count="$length" conv=notrunc ||
    fail "Cannot clear the old filesystem backup on $target."
   check_inventory
-  dd if=/dev/zero of="$target" bs="$sector_size" seek="$((start / scale))" count="$length" conv=notrunc 2>/dev/null ||
+  dd if=/dev/zero of="$target" bs="$sector_size" seek="$((start / scale))" count="$length" conv=notrunc ||
    fail "Cannot clear the old filesystem header on $target."
  done
  check_inventory
- dd if=/dev/zero of="$target" bs="$sector_size" count="$edge" conv=notrunc 2>/dev/null ||
+ dd if=/dev/zero of="$target" bs="$sector_size" count="$edge" conv=notrunc ||
   fail "Cannot clear the old partition table on $target."
  check_inventory
- dd if=/dev/zero of="$target" bs="$sector_size" seek="$((blocks - edge))" count="$edge" conv=notrunc 2>/dev/null ||
+ dd if=/dev/zero of="$target" bs="$sector_size" seek="$((blocks - edge))" count="$edge" conv=notrunc ||
   fail "Cannot clear the old partition table on $target."
  blockdev --flushbufs "$target" && blockdev --rereadpt "$target" || fail "Cannot reload the cleared partition table on $target."
  for part in "$sys"/"${target##*/}"*; do
@@ -266,6 +266,14 @@ select_automatic_target() {
 Template: camerawall/erase-title
 Type: text
 Description: Erase ${disk} and install CameraWall?
+
+Template: camerawall/auto-retry
+Type: text
+Description: Retrying ${disk} in 10 seconds
+
+Template: camerawall/auto-retry-detail
+Type: text
+Description: ${reason}
 
 Template: camerawall/erase-countdown
 Type: text
@@ -302,8 +310,11 @@ retry_target_operation() {
    fail() { printf '%s\n' "$*" > /tmp/camerawall-target-error; exit 1; }
    : > /tmp/camerawall-target-error
    "$operation"
-  ); then
+  ) 2>/tmp/camerawall-operation.log; then
    return 0
+  fi
+  if [ -s /tmp/camerawall-operation.log ]; then
+   logger -t camerawall "$(tail -n 3 /tmp/camerawall-operation.log)"
   fi
   check_inventory
   attempts=$((attempts + 1))
@@ -315,7 +326,12 @@ retry_target_operation() {
   if [ "$mode" = auto ]; then
    logger -t camerawall "Retrying fixed Auto target $target: ${reason:-Disk operation failed}"
    echo "CameraWall: retrying $target in 10 seconds: ${reason:-disk operation failed}" > /dev/console
+   db_subst camerawall/auto-retry disk "$target" &&
+    db_subst camerawall/auto-retry-detail reason "${reason:-Disk operation failed.} $(tail -n 1 /tmp/camerawall-operation.log | cut -c1-110)" &&
+    db_progress START 0 1 camerawall/auto-retry &&
+    db_progress INFO camerawall/auto-retry-detail || fail "Cannot show retry for $target: $reason"
    sleep 10
+   db_progress STOP || fail "Cannot close retry message for $target."
    continue
   fi
   logger -t camerawall "Target $target retained: ${reason:-Disk operation failed}"
@@ -330,7 +346,7 @@ Description: Continue on ${disk}
 TEMPLATES
   debconf-loadtemplate camerawall /tmp/camerawall-retry.templates || fail 'Cannot display disk recovery.'
   db_subst camerawall/retry-target disk "$target"
-  db_subst camerawall/retry-target reason "${reason:-Disk operation failed. See Ctrl+Alt+F4.}"
+  db_subst camerawall/retry-target reason "${reason:-Disk operation failed.}"
   db_set camerawall/retry-target 'Retry this disk'
   db_fset camerawall/retry-target seen false
   db_input critical camerawall/retry-target && db_go && db_get camerawall/retry-target ||
