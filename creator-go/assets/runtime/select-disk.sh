@@ -40,6 +40,7 @@ boot=/dev/$name
 [ -b "$boot" ] || fail 'Cannot resolve the installer parent disk.'
 . /camerawall/mount-media.sh
 mount_and_verify_media
+. /camerawall/release-clock.sh
 logger -t camerawall "Installer media: /cdrom=$media, protected disk=$boot, verified payload=$payload"
 target_swap_devices() {
  local sys source type path node rest

@@ -6,4 +6,5 @@ mkdir -p /target/cw-media
 if ! awk '$2 == "/target/cw-media" {found=1} END {exit !found}' /proc/mounts; then
  mount --bind /cw-media /target/cw-media
 fi
-printf 'deb [trusted=yes] file:/cw-media/repo ./\n' > "$1"
+# This checksum-verified USB snapshot must work before the offline clock is set.
+printf 'deb [trusted=yes check-date=no] file:/cw-media/repo ./\n' > "$1"

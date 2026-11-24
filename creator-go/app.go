@@ -28,12 +28,13 @@ type Asset struct {
 	SHA256 string `json:"sha256"`
 }
 type Spec struct {
-	Debian      Asset   `json:"debian"`
-	Application Asset   `json:"-"`
-	Display     Asset   `json:"-"`
-	AppVersion  string  `json:"-"`
-	Analytics   []Asset `json:"analytics"`
-	Packages    []Asset `json:"-"`
+	Debian      Asset     `json:"debian"`
+	Application Asset     `json:"-"`
+	Display     Asset     `json:"-"`
+	AppVersion  string    `json:"-"`
+	PublishedAt time.Time `json:"-"`
+	Analytics   []Asset   `json:"analytics"`
+	Packages    []Asset   `json:"-"`
 }
 type FileProgress struct {
 	Name     string `json:"name"`
@@ -312,7 +313,7 @@ func (a *App) prepare(ctx context.Context) (Image, error) {
 		return Image{}, e
 	}
 	a.phase("download", "Kiểm tra bản CameraWall mới nhất trên GitHub", 0, "bytes")
-	s.AppVersion, s.Application, s.Display, e = resolveRelease(ctx, latestReleaseURL)
+	e = s.resolveRelease(ctx, latestReleaseURL)
 	if e != nil {
 		return Image{}, fmt.Errorf("không xác định được bản CameraWall mới nhất: %w", e)
 	}

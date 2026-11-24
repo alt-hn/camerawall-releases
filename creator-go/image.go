@@ -50,7 +50,7 @@ func runtimeFiles() (map[string][]byte, error) {
 		}
 		out["camerawall/"+entry.Name()] = b
 	}
-	for _, name := range []string{"mount-media.sh", "late-install.sh", "offline-bootstrap.sh"} {
+	for _, name := range []string{"mount-media.sh", "release-clock.sh", "late-install.sh", "offline-bootstrap.sh"} {
 		b, e := bundled.ReadFile("assets/offline/" + name)
 		if e != nil {
 			return nil, e
